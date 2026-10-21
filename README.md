@@ -20,8 +20,9 @@ Puis ouvrir `http://localhost:8080`. Aucune installation de dépendances n’est
 - Espace ou flèche haut : turbo.
 - Flèche bas ou S : freiner.
 - H : klaxon pour faire fuir les fantômes proches.
+- **F (maintenir) : tirer des bonbons** sur les fantômes, citrouilles et brocolis devant le corbillard. Cadence limitée à un tir toutes les 0,5 secondes ; un obstacle détruit rapporte 150 points.
 - P ou Échap : pause ; R après l’arrivée : rejouer.
-- Téléphone : glisser le doigt sur la route, ou utiliser les boutons tactiles. Le turbo fonctionne avec un second doigt.
+- Téléphone : glisser le doigt sur la route, ou utiliser les boutons tactiles. **Maintenir TIR ✦** pour tirer en continu ; le turbo et le tir fonctionnent aussi avec un second doigt.
 
 ## Campagne
 
@@ -38,7 +39,11 @@ Puis ouvrir `http://localhost:8080`. Aucune installation de dépendances n’est
 | 9 | Les mines de sucre | 80 s | 38 |
 | 10 | Le laboratoire interdit — Dr Brocoli mutant | 85 s | 40 |
 
-Les boss des niveaux 6, 8 et 10 arrivent dans la dernière partie du parcours : esquivez leurs projectiles rouges et récupérez trois runes violettes pour vider leur jauge de vie. Vous devez aussi avoir le nombre de bonbons demandé pour gagner. Une victoire débloque le niveau suivant. Les étoiles, records, réglages et niveaux débloqués sont enregistrés dans le stockage local du navigateur, sur cet appareil. Les records sont séparés entre le mode Balade (5 vies) et le mode Arcade (3 vies).
+Les boss des niveaux 6, 8 et 10 arrivent dans la dernière partie du parcours : esquivez leurs projectiles rouges et récupérez trois runes violettes pour vider leur jauge de vie. Les tirs de bonbons détruisent les obstacles ordinaires, pas les boss, leurs projectiles ou les runes. Vous devez aussi avoir le nombre de bonbons demandé pour gagner. Une victoire débloque le niveau suivant. Les étoiles, records, réglages et niveaux débloqués sont enregistrés dans le stockage local du navigateur, sur cet appareil. Les records sont séparés entre le mode Balade (5 vies) et le mode Arcade (3 vies).
+
+## Lance-bonbons
+
+Le corbillard d’Aylina et son koala disposent d’un lance-bonbons magique. Les tirs suivent la trajectoire de la voiture au moment du tir, éclatent les citrouilles, chassent les fantômes et pulvérisent les brocolis. Leurs effets sont dessinés en Canvas et accompagnés de sons Web Audio. Les bonbons à collecter, les boucliers, les runes et les attaques des boss ne peuvent pas être touchés par ces tirs.
 
 ## Version 2
 

@@ -1,4 +1,4 @@
-import {clamp,PLAYER_Z} from './engine.js';
+import {clamp,PLAYER_Z} from './engine.js?v=13';
 import {viewMetrics,projectRoad} from './geometry.js';
 
 const TAU = Math.PI * 2;
@@ -46,6 +46,10 @@ export class Scene {
       const p=this.road(PLAYER_Z),x=p.x+this.game.x*p.half*.78;
       for(let i=0;i<10;i++)this.effects.push({x,y:p.y-30,vx:(Math.random()-.5)*160,vy:-80-Math.random()*130,life:.6,max:.6,color:i%2?'#ffd484':'#d2a9ff',size:2+Math.random()*3});
     }
+    if(e.type==='targetHit'){
+      const p=this.road(e.z),x=p.x+e.x*p.half*.78;
+      for(let i=0;i<18;i++)this.effects.push({x,y:p.y-18,vx:(Math.random()-.5)*185,vy:-35-Math.random()*135,life:.55,max:.55,color:e.target==='ghost'?'#c9abff':e.target==='pumpkin'?'#ffb55b':'#a6ef99',size:2+Math.random()*5});
+    }
     if(e.type==='hit'){
       const p=this.road(PLAYER_Z),x=p.x+this.game.x*p.half*.78;
       for(let i=0;i<20;i++)this.effects.push({x,y:p.y-30,vx:(Math.random()-.5)*270,vy:-50-Math.random()*150,life:.8,max:.8,color:'#ff854b',size:2+Math.random()*4});
@@ -66,7 +70,7 @@ export class Scene {
     c.save();
     if(this.shake>0&&!this.reduced&&g.mode==='playing'){this.shake=Math.max(0,this.shake-dt);c.translate(Math.sin(this.time*100)*this.shake*8,Math.cos(this.time*120)*this.shake*5);}
     this.sky();this.landscape();this.roadSurface();this.scenery();this.bossFigure();
-    const objects=this.menu?[{type:'candy',x:-.65,z:.55,seed:0},{type:'candy',x:-.65,z:.65,seed:1},{type:'candy',x:.66,z:.32,seed:2},{type:'pumpkin',x:.68,z:.64,seed:3},{type:'ghost',x:-1.17,z:.79,seed:4}]:g.objects;
+    const objects=this.menu?[{type:'candy',x:-.65,z:.55,seed:0},{type:'candy',x:-.65,z:.65,seed:1},{type:'candy',x:.66,z:.32,seed:2},{type:'pumpkin',x:.68,z:.64,seed:3},{type:'ghost',x:-1.17,z:.79,seed:4}]:[...g.objects,...g.projectiles.map(p=>({...p,type:'shot'}))];
     let carDrawn=false;
     for(const o of [...objects].sort((a,b)=>a.z-b.z)){
       if(o.z>PLAYER_Z&&!carDrawn){this.vehicle();carDrawn=true;}
@@ -74,7 +78,8 @@ export class Scene {
       const p=this.road(o.z),x=p.x+o.x*p.half*.78,scale=o.z*this.metrics.objectScale;
       c.save();c.translate(x,p.y);
       if(o.fleeing){c.rotate(Math.sin(this.time*20)*.3);c.globalAlpha=clamp(1-(Math.abs(o.x)-1)*.6,0,1);}
-      if(o.type==='candy')this.candy(0,0,scale,this.time*2+o.seed);
+      if(o.type==='shot')this.candyShot(scale);
+      else if(o.type==='candy')this.candy(0,0,scale,this.time*2+o.seed);
       else if(o.type==='pumpkin')this.pumpkin(0,0,scale*1.06,true);
       else if(o.type==='broccoli')this.broccoli(0,0,scale);
       else if(o.type==='shield'||o.type==='magnet')this.powerup(0,0,scale,o.type);
@@ -258,6 +263,16 @@ export class Scene {
     this.glow(0,0,70,'#cba7ff66');c.rotate(this.time*1.9);
     this.path([[0,-31],[24,0],[0,31],[-24,0]],'#d9a5ff','#fff6dc',3);
     this.path([[0,-19],[13,0],[0,19],[-13,0]],'#faf2c7');
+    c.restore();
+  }
+  candyShot(s){
+    const c=this.ctx;c.save();c.translate(0,-18*s);c.scale(s,s);
+    this.glow(0,0,45,'#bcb7ff66');
+    this.ellipse(0,0,10,14,'#f5daff');
+    this.ellipse(-3,-4,4,5,'#ffffff');
+    this.path([[-13,-4],[-25,-10],[-17,1],[-25,10],[-12,5]],'#ffa85f');
+    this.path([[13,-4],[25,-10],[17,1],[25,10],[12,5]],'#ffa85f');
+    this.line([[-4,-19],[-6,-27]],'#ffe9c5',2);
     c.restore();
   }
   bossProjectile(x,y,s){

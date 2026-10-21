@@ -25,6 +25,8 @@ export class AudioEngine {
     if(type==='candy'){this.tone(880,.12,'sine',.13);this.tone(1320,.19,'sine',.08,.065);}
     if(type==='hit'){this.tone(110,.35,'sawtooth',.09,0,28);this.tone(48,.25,'triangle',.2);}
     if(type==='honk'){this.tone(233,.26,'sawtooth',.07,0,185);this.tone(349,.28,'triangle',.16,0,277);this.tone(233,.14,'square',.025,.3,196);}
+    if(type==='shoot'){this.tone(820,.10,'triangle',.065,0,360);this.tone(1220,.08,'sine',.04);}
+    if(type==='targetHit'){this.tone(360,.12,'triangle',.07,0,740);this.tone(950,.17,'sine',.09,.035);}
     if(type==='count'){this.tone(523,.13,'triangle',.15);}
     if(type==='go'){this.tone(1046,.4,'triangle',.14);}
     if(type==='win'){[523,659,784,1046,1318,1568].forEach((n,i)=>this.tone(n,.38,'triangle',.1,i*.12));}

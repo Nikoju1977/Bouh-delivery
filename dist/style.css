@@ -58,3 +58,18 @@
 .boss-mission small{line-height:1.5}
 @media(max-width:800px){.game-heading .boss-jump{font-size:9px;padding:8px 10px}}
 @media(max-width:580px){.game-heading .boss-jump{font-size:8px;padding:8px 9px}.campaign-chapter-heading{padding:10px;margin-top:20px;align-items:flex-start}.campaign-chapter-heading span{font-size:10px}.campaign-chapter-heading small{font-size:8px;white-space:normal;text-align:right}.boss-hint{font-size:10px}}
+
+/* Candy blaster: readable reload indicator and large, two-row mobile controls. */
+.weapon-status{position:absolute;bottom:1px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:4px;font:700 10px Arial,sans-serif;letter-spacing:.7px;color:#ffe2bf;text-shadow:0 1px 6px #160925}
+.weapon-status small{font:9px monospace;color:#fff2d1}
+.weapon-status.cooling small{color:#baa2c6}
+.touch-controls .touch-shoot{background:linear-gradient(145deg,#80428d,#b25989);border-color:#eca7d4;color:#fff4f5;font:bold 11px monospace;padding:0 12px;min-width:63px}
+.touch-controls .touch-shoot.held{background:#df87b9}
+@media(max-width:580px){
+  .weapon-status{bottom:4px;font-size:8px;gap:3px}
+  .weapon-status small{font-size:8px}
+  .touch-controls:not([hidden]){flex-direction:column;gap:7px;align-items:stretch}
+  .touch-controls>div{width:100%;justify-content:space-between;gap:7px}
+  .touch-controls button{flex:1;min-width:0}
+  .touch-controls .touch-shoot,.touch-controls .touch-boost{min-width:0;flex:1.2}
+}

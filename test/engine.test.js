@@ -107,3 +107,55 @@ test('migration never unlocks level six from an unfinished level five',()=>{
   const oldWins=readProgress(JSON.stringify({unlocked:3,results:{'balade:5':{best:500,stars:1}}}));
   assert.equal(oldWins.unlocked,6);
 });
+
+
+test('candy blaster clears ghosts, pumpkins and broccoli while awarding points',()=>{
+  for(const type of ['ghost','pumpkin','broccoli']){
+    const {game,events}=setup();
+    game.objects=[object(type,0,.5)];
+    assert.equal(game.shoot(),true);
+    run(game,.42);
+    assert.equal(game.objects.some(o=>o.type===type),false,type);
+    assert.equal(game.targetsHit,1);
+    assert.equal(game.lives,3);
+    assert.ok(game.score>=150);
+    assert.equal(events.filter(e=>e.type==='shoot').length,1);
+    assert.equal(events.filter(e=>e.type==='targetHit'&&e.target===type).length,1);
+  }
+});
+
+test('candy shots cannot collect pickups, destroy boss hazards or replace boss runes',()=>{
+  const {game}=setup();game.configure({levelIndex:5});game.reset();game.start();game.waveClock=999;
+  game.boss.active=true;game.boss.runeClock=999;game.boss.attackClock=999;
+  game.objects=[object('candy',0,.58),object('rune',0,.45),object('bossBolt',0,.5),object('pumpkin',0,.33)];
+  game.shoot();run(game,.45);
+  assert.equal(game.targetsHit,1);
+  assert.ok(game.objects.some(o=>o.type==='candy'));
+  assert.ok(game.objects.some(o=>o.type==='rune'));
+  assert.ok(game.objects.some(o=>o.type==='bossBolt'));
+  assert.equal(game.boss.hp,3);
+  assert.equal(game.candies,0);
+});
+
+test('shots follow firing lane and cannot clear obstacles on another lane',()=>{
+  const {game}=setup();game.objects=[object('pumpkin',.66,.48)];
+  assert.equal(game.shoot(),true);run(game,.7);
+  assert.equal(game.targetsHit,0);
+  assert.ok(game.objects.some(o=>o.type==='pumpkin'));
+  assert.equal(game.projectiles.length,0);
+});
+
+test('holding fire repeats at a limited rate, pauses safely and resets',()=>{
+  const {game,events}=setup();
+  run(game,1.22,{shoot:true});
+  assert.equal(game.shotsFired,3);
+  assert.equal(events.filter(e=>e.type==='shoot').length,3);
+  assert.equal(game.shoot(),false);
+  const cooldown=game.shotCooldown,shots=game.shotsFired,positions=game.projectiles.map(p=>p.z);
+  game.pause();run(game,1.2,{shoot:true});
+  assert.equal(game.shoot(),false);
+  assert.equal(game.shotCooldown,cooldown);
+  assert.equal(game.shotsFired,shots);
+  assert.deepEqual(game.projectiles.map(p=>p.z),positions);
+  game.reset();assert.equal(game.shotsFired,0);assert.equal(game.shotCooldown,0);assert.deepEqual(game.projectiles,[]);
+});

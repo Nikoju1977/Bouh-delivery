@@ -1,8 +1,8 @@
-import {Game,LEVELS,MODES,clamp} from './engine.js?v=12';
-import {readProgress,recordResult} from './levels.js?v=12';
+import {Game,LEVELS,MODES,clamp} from './engine.js?v=13';
+import {readProgress,recordResult} from './levels.js?v=13';
 import {dragTarget} from './geometry.js';
-import {Scene} from './scene.js';
-import {AudioEngine} from './audio.js';
+import {Scene} from './scene.js?v=13';
+import {AudioEngine} from './audio.js?v=13';
 
 const $=id=>document.getElementById(id);
 const storage={get(key,fallback){try{return localStorage.getItem(key)??fallback;}catch{return fallback;}},set(key,value){try{localStorage.setItem(key,String(value));}catch{}}};
@@ -90,12 +90,13 @@ function finish(event){
   ($('next-level-button').hidden?$('replay-button'):$('next-level-button')).focus({preventScroll:true});
 }
 function handleEvent(e){
-  scene?.event(e);if(['candy','hit','honk'].includes(e.type))audio.effect(e.type);
+  scene?.event(e);if(['candy','hit','honk','shoot','targetHit'].includes(e.type))audio.effect(e.type);
   if(e.type==='candy'){if(e.goal){showToast('LE SAC EST PLEIN ! TIENS BON !',2.5);say('DRACULA · RADIO 6.66','Maintenant, livre-le en un seul morceau. Le sac, pas le chauffeur.');}else if(e.combo%8===0)showToast(`COMBO ×${e.combo} !`);}
   if(e.type==='hit')showToast(e.obstacle==='broccoli'?'PAS DANS LA SOUPE !':e.obstacle==='pumpkin'?'PURÉE DE CITROUILLE !':'CONSTAT À L’AMIÂBLE !');
   if(e.type==='honk')showToast(e.count?'PARDON, J’ÉTAIS MORT !':'POUËT !',1.2);
   if(e.type==='powerup'){audio.effect('go');showToast(e.powerup==='shield'?'ASSURANCE TOUS FANTÔMES !':'AIMANT À CARIES · 8 S');}
   if(e.type==='shield'){audio.effect('honk');showToast('LE BOUCLIER A TOUT PRIS !');}
+  if(e.type==='targetHit')showToast(e.target==='ghost'?'FANTÔME CHASSÉ ! +150':e.target==='pumpkin'?'CITROUILLE ÉCLATÉE ! +150':'BROCOLI PULVÉRISÉ ! +150',1.1);
   if(e.type==='nearMiss')showToast('ÇA PASSE ! +50',1);
   if(e.type==='bossStart'){showToast('ATTENTION · '+e.name,2.5);say('ALERTE DU GPS POSSÉDÉ','Boss devant ! Attrape les runes violettes pour le vaincre.',4);}
   if(e.type==='bossHit'){audio.effect('candy');showToast('BOSS TOUCHÉ · '+e.hp+' PV',1.5);}
@@ -107,6 +108,8 @@ function updateHud(){
   $('timer-value').parentElement.classList.toggle('urgent',remaining<=10);$('candy-value').textContent=String(game.candies).padStart(2,'0');$('goal-target').textContent=` / ${game.goal}`;$('goal-fill').style.width=Math.min(100,game.candies/game.goal*100)+'%';
   $('lives-value').textContent=Array.from({length:game.maxLives},(_,i)=>i<game.lives?'♥':'♡').join(' ');$('lives-value').setAttribute('aria-label',`${game.lives} vies restantes`);
   $('score-value').textContent=Math.floor(game.score).toLocaleString('fr-FR');$('turbo-fill').style.width=game.fuel+'%';$('turbo-label').textContent=game.braking?'FREIN':game.boosting?'WOUHOU !':game.boostLocked?'RECHARGE':'ESPACE';$('speed-value').textContent=game.speed;
+  $('weapon-label').textContent=game.shotCooldown>0?'RECHARGE':'F · TIR';
+  $('weapon-status').classList.toggle('cooling',game.shotCooldown>0);
   $('honk-status').classList.toggle('cooling',game.honkCooldown>0);$('honk-status').querySelector('span').textContent=game.honkCooldown>0?`${Math.ceil(game.honkCooldown)} S`:'POUËT !';
   const badges=[];if(game.shield)badges.push('⬡ BOUCLIER');if(game.magnet>0)badges.push(`✦ AIMANT ${Math.ceil(game.magnet)} S`);if(game.combo>=4)badges.push(`COMBO ×${game.combo}`);
   const b=game.boss,bossVisible=b?.active&&!b.defeated&&(game.mode==='playing'||game.mode==='paused');
@@ -117,7 +120,7 @@ function updateHud(){
 function input(){
   const touch=new Set(touchPointers.values());
   const axis=(keys.has('arrowright')||keys.has('d')||touch.has('right')?1:0)-(keys.has('arrowleft')||keys.has('q')||keys.has('a')||touch.has('left')?1:0);
-  return {axis,targetX:axis?undefined:drag?.target,boost:keys.has(' ')||keys.has('arrowup')||keys.has('w')||keys.has('z')||touch.has('boost'),brake:keys.has('arrowdown')||keys.has('s')||touch.has('brake')};
+  return {axis,targetX:axis?undefined:drag?.target,boost:keys.has(' ')||keys.has('arrowup')||keys.has('w')||keys.has('z')||touch.has('boost'),brake:keys.has('arrowdown')||keys.has('s')||touch.has('brake'),shoot:keys.has('f')||touch.has('shoot')};
 }
 for(const id of ['start-button','replay-button','restart-pause'])$(id).addEventListener('click',start);
 $('home-button').addEventListener('click',()=>home());$('pause-button').addEventListener('click',pause);$('resume-button').addEventListener('click',resume);
@@ -132,7 +135,7 @@ $('help-dialog').addEventListener('click',event=>{if(event.target===$('help-dial
 document.addEventListener('keydown',event=>{
   if($('help-dialog').open||['INPUT','SELECT','TEXTAREA'].includes(event.target.tagName))return;
   const key=event.key.toLowerCase();if(game.mode==='over'&&key==='r'&&!event.repeat){event.preventDefault();start();return;}
-  if(isDriving()&&['arrowleft','arrowright','arrowup','arrowdown',' ','h','p','q','d','a','w','z','s','escape'].includes(key)){
+  if(isDriving()&&['arrowleft','arrowright','arrowup','arrowdown',' ','h','p','q','d','a','w','z','s','f','escape'].includes(key)){
     event.preventDefault();if((key==='p'||key==='escape')&&!event.repeat){game.mode==='playing'?pause():resume();return;}
     if(game.mode==='playing'){keys.add(key);if(key==='h'&&!event.repeat&&countdownRemaining<=0)game.honk();}
   }
