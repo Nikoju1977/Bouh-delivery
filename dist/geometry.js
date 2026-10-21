@@ -1,0 +1,4 @@
+import {PLAYER_Z,clamp} from './engine.js';
+export function viewMetrics(width,height){const mobile=width<580,front=width*(mobile?0.50:0.49),carScale=Math.min(0.88*height/650,width/600),objectScale=Math.min(0.76*height/650,width/600),playerUnit=(width*0.018+(front-width*0.018)*PLAYER_Z)*0.78;return {mobile,front,carScale,objectScale,playerUnit,maxX:clamp((width/2-70*carScale-12)/playerUnit,0.75,1.08),hitRadius:(52*carScale+26*objectScale*PLAYER_Z)/playerUnit*0.88};}
+export function projectRoad(z,{width,height,center,horizon,front,travel=0}){const bend=(Math.sin(travel*0.7)*0.037*(1-z)**2+Math.sin(z*3+travel*0.45)*0.042*(1-z))*width;return {x:center+bend,y:horizon+(height-horizon)*z*z,half:width*0.018+(front-width*0.018)*z};}
+export function dragTarget(startX,startClientX,clientX,playerUnit,maxX){return clamp(startX+(clientX-startClientX)/playerUnit,-maxX,maxX);}

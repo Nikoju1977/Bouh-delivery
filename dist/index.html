@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#100e1a">
+  <meta name="description" content="Dracula a faim. Son dentiste a un plan. Prends le volant du Bonbon Express et sauve Halloween dans ce jeu de course drôle et gratuit.">
+  <title>BOUH! Delivery — La course aux bonbons</title>
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <div class="page-glow" aria-hidden="true"></div>
+  <header class="site-header">
+    <a href="./" class="brand" aria-label="BOUH! Delivery, accueil">
+      <svg viewBox="0 0 40 42" aria-hidden="true"><path fill="currentColor" d="M4 37V18C4-4 36-4 36 18v19l-8-4-8 5-8-5z"/><ellipse cx="14" cy="18" rx="3" ry="4" fill="#121019"/><ellipse cx="26" cy="18" rx="3" ry="4" fill="#121019"/><path d="M16 27q4 4 8-1" fill="none" stroke="#121019" stroke-width="2" stroke-linecap="round"/></svg>
+      <span>BOUH!<small>DELIVERY</small></span>
+    </a>
+    <div class="header-note"><span class="status-dot"></span> LIVRAISON EXPRESS DEPUIS L’AU-DELÀ</div>
+    <nav aria-label="Options du jeu">
+      <button class="quiet-button" id="help-button"><span class="help-circle">?</span><span>Comment jouer</span></button>
+      <button class="icon-button sound-button" id="sound-button" aria-label="Couper le son" aria-pressed="true" title="Activer ou couper le son">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M11 4 5 9H2v6h3l6 5z"/><path class="sound-waves" d="M15 8c3 2 3 6 0 8m3-11c5 4 5 10 0 14"/><path class="sound-off" d="m16 9 6 6m0-6-6 6"/></svg>
+      </button>
+    </nav>
+  </header>
+
+  <main>
+    <div class="game-heading"><span><i></i> SPÉCIAL HALLOWEEN</span><p>5 niveaux. Des bonbons. Zéro permis.</p><span class="edition">ÉDITION DU 31 OCTOBRE</span></div>
+    <div class="drive-settings" aria-label="Réglages de conduite">
+      <span class="selected-mission" id="selected-mission">MISSION 01 / 05</span>
+      <label for="difficulty">Difficulté <select id="difficulty"><option value="balade">Balade · 5 vies</option><option value="arcade" selected>Arcade · 3 vies</option></select></label>
+      <label class="sensitivity-setting" for="sensitivity">Direction <input id="sensitivity" type="range" min="65" max="140" value="100" step="5" aria-label="Sensibilité de la direction"><output id="sensitivity-value" for="sensitivity">100 %</output></label>
+    </div>
+    <section class="game-shell" id="game-shell" aria-label="Jeu de course BOUH Delivery">
+      <canvas id="game-canvas" width="1280" height="720" aria-label="Route d’Halloween. Utilisez les flèches gauche et droite pour conduire, Espace pour le turbo la flèche bas pour freiner et H pour le klaxon. Sur écran tactile, glissez le doigt pour conduire.">Votre navigateur doit prendre en charge Canvas pour jouer.</canvas>
+      <div class="vignette" aria-hidden="true"></div>
+      <div class="corner-label" id="corner-label"><span class="live-dot"></span> MINUIT APPROCHE<span class="label-line"></span> ROUTE 666</div>
+      <div class="scene-caption" id="scene-caption"><span>LE BONBON EXPRESS</span><small>0 à 100 en un cri.</small><svg viewBox="0 0 60 50" fill="none" aria-hidden="true"><path d="M53 2Q7 0 7 39m-6-8 6 11 10-9" stroke="currentColor" stroke-width="1.5"/></svg></div>
+      <div class="intro" id="intro">
+        <div class="eyebrow"><span id="intro-mode">ARCADE</span><span class="mission-title" id="intro-level">01 · LE CIMETIÈRE</span></div>
+        <h1>BOUH!<br><span>DELIVERY</span><i aria-hidden="true">✦</i></h1>
+        <p class="intro-story">Dracula a commandé des bonbons.<br>Son dentiste a envoyé les citrouilles.<br><strong>Tu vois le problème ?</strong></p>
+        <button class="primary-button" id="start-button">Démarrer la livraison <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+        <div class="intro-meta"><span><b id="intro-duration">35</b> SECONDES</span><i></i><span><b id="intro-goal">12</b> BONBONS</span><i></i><span><b id="intro-lives">3</b> VIES</span></div>
+      </div>
+      <div class="level-pill" id="level-pill"><span>01</span><div>LE CIMETIÈRE<small>Bienvenue. Enfin… façon de parler.</small></div></div>
+      <div class="hud" id="hud" hidden>
+        <div class="hud-mission"><span class="hud-label">LE SAC À BONBONS</span><div><span class="candy-symbol">◆</span> <b id="candy-value">00</b><small id="goal-target"> / 12</small></div><div class="goal-track"><i id="goal-fill"></i></div></div>
+        <div class="hud-timer"><span class="hud-label">AVANT MINUIT</span><strong id="timer-value">00:35</strong></div>
+        <div class="hud-right"><span id="lives-value" class="lives" aria-label="3 vies restantes">♥ ♥ ♥</span><div class="hud-score"><span id="score-value">0</span> PTS</div></div>
+        <button class="icon-button pause-button" id="pause-button" aria-label="Mettre en pause" title="Pause (P)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5v14M17 5v14" stroke="currentColor" stroke-width="3"/></svg></button>
+      </div>
+      <div class="powerup-status" id="powerup-status" hidden aria-live="polite"></div>
+      <div class="play-bottom" id="play-bottom" hidden>
+        <div class="turbo-meter"><div><span>✦ TURBO SUCRÉ</span><small id="turbo-label">ESPACE</small></div><div class="turbo-track"><i id="turbo-fill"></i></div></div>
+        <div class="speed-readout"><strong id="speed-value">88</strong><span>KM/H</span></div>
+        <div class="honk-status" id="honk-status"><kbd>H</kbd><span>POUËT !</span></div>
+      </div>
+      <div class="radio" id="radio" hidden><div class="radio-avatar" aria-hidden="true">☠</div><div><span id="radio-name">DRACULA · RADIO 6.66</span><p id="radio-text"></p></div></div>
+      <div class="toast" id="toast" aria-live="polite"></div>
+      <div class="countdown" id="countdown" hidden aria-live="assertive"><strong id="countdown-number">3</strong><span>LE PERMIS ? UNE LÉGENDE.</span></div>
+      <div class="screen-overlay" id="pause-overlay" hidden><div class="result-card pause-card"><span class="eyebrow">PETITE PAUSE DANS L’AU-DELÀ</span><h2>On souffle.<br><em>Enfin, toi.</em></h2><p>Les fantômes n’ont pas de poumons.<br>Ils attendent quand même poliment.</p><button class="primary-button" id="resume-button">Reprendre la route <span>→</span></button><button class="text-button" id="restart-pause">Recommencer la livraison</button></div></div>
+      <div class="screen-overlay" id="result-overlay" hidden><div class="result-card"><span class="result-icon" id="result-icon" aria-hidden="true">✦</span><span class="eyebrow" id="result-eyebrow">MISSION ACCOMPLIE</span><h2 id="result-title">La dent sucrée.<br><em>Et pointue.</em></h2><p id="result-story"></p><div class="earned-stars" id="earned-stars" aria-label="Étoiles gagnées"></div><div class="result-stats"><div><b id="result-candies">25</b><span>BONBONS</span></div><div><b id="result-score">0</b><span>POINTS</span></div><div><b id="result-best">0</b><span>RECORD</span></div></div><button class="primary-button" id="next-level-button" hidden>Niveau suivant <span>→</span></button><button class="primary-button" id="replay-button">Rejouer ce niveau <span>↻</span></button><button class="text-button" id="home-button">Retour au garage</button></div></div>
+      <div class="canvas-footer" id="canvas-footer"><span>GARANTI SANS JUMPSCARE*</span><span>*Sauf le prix de l’essence.</span></div>
+    </section>
+
+    <div class="touch-controls" id="touch-controls" hidden aria-label="Commandes tactiles"><div><button data-control="left" aria-label="Tourner à gauche">←</button><button data-control="right" aria-label="Tourner à droite">→</button></div><div><button data-control="brake" class="touch-brake" aria-label="Freiner">FREIN</button><button data-control="honk" class="touch-honk" aria-label="Klaxonner">POUËT</button><button data-control="boost" class="touch-boost" aria-label="Activer le turbo">TURBO ✦</button></div></div>
+    <p class="touch-tip" id="touch-tip" hidden>Glisse le doigt sur la route pour diriger. Le turbo reste accessible à l’autre main.</p>
+    <section class="below-game" aria-label="Mission et commandes">
+      <div class="mission-note"><span class="stamp" aria-hidden="true">✦</span><p><strong id="mission-title">La fête de Dracula compte sur toi.</strong><br><span id="mission-description">12 bonbons, 35 secondes. Et un corbillard de fonction.</span></p></div>
+      <div class="keyboard-guide"><div><span><kbd>←</kbd><kbd>→</kbd></span> Conduire</div><div><kbd class="wide-key">ESPACE</kbd> Turbo</div><div><kbd>↓</kbd> Freiner</div><div><kbd>H</kbd> Klaxonner</div><div><kbd>P</kbd> Pause</div></div>
+    </section>
+    <section class="level-select" aria-labelledby="levels-title">
+      <div class="route-header"><span id="levels-title">LES CINQ LIVRAISONS DE L’APOCALYPSE</span><span id="progress-label">1 / 5 DÉBLOQUÉ</span></div>
+      <div class="level-list" id="level-list"></div><p class="level-brief" id="level-brief"></p>
+      <p class="save-note">Progression et records enregistrés sur cet appareil. Gagne une livraison pour débloquer la suivante.</p>
+    </section>
+  </main>
+  <footer class="site-footer"><span>BOUH! DELIVERY <i>©</i> L’AU-DELÀ</span><p>Fait avec des bonbons et de très mauvaises intentions dentaires.</p><span>MEILLEUR SCORE <b id="footer-best">0000</b></span></footer>
+
+  <dialog id="help-dialog" aria-labelledby="help-title"><button class="dialog-close icon-button" id="close-help" aria-label="Fermer les instructions">×</button><span class="eyebrow">LE MANUEL DU PARFAIT REVENANT</span><h2 id="help-title">Permis de <em>hanter.</em></h2><p>Le docteur Brocoli veut transformer Halloween en soirée crudités. Au volant du Bonbon Express, tu es le dernier espoir des caries.</p>
+    <div class="rules"><div><b>01</b><p><strong>Cinq livraisons, cinq catastrophes.</strong>Atteins l’objectif de bonbons et survis jusqu’à l’arrivée pour débloquer le niveau suivant. La voiture avance toute seule.</p></div><div><b>02</b><p><strong>Conduis à ton rythme.</strong>3 vies en Arcade, 5 en Balade. Freine avec ↓ ou S. Ajuste la sensibilité au garage. Le klaxon fait fuir les fantômes proches ; les légumes n’ont pas d’oreilles.</p></div><div><b>03</b><p><strong>Turbo et petits coups de pouce.</strong>Espace ou ↑ pour accélérer. Le turbo vide attend 25 % de recharge. Un bouclier absorbe un choc ; un aimant attire les bonbons pendant 8 secondes. Garde tes vies pour gagner jusqu’à 3 étoiles.</p></div></div>
+    <div class="help-keys"><span><kbd>←</kbd> <kbd>→</kbd> ou <kbd>Q</kbd> <kbd>D</kbd> : diriger</span><span><kbd>↓</kbd> : frein · <kbd>H</kbd> : klaxon · <kbd>P</kbd> / Échap : pause</span></div><p class="mobile-note">Sur téléphone : glisse le doigt sur la route ou utilise les flèches. Maintiens le turbo avec un second doigt. Les niveaux et records sont sauvegardés sur cet appareil.</p><button class="primary-button" id="help-ready">J’ai mon permis de hanter <span>→</span></button>
+  </dialog>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

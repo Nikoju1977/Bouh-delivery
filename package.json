@@ -1,0 +1,10 @@
+{
+  "name": "bouh-delivery",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
+  "description": "Jeu de voiture arcade pour Halloween, en Canvas et JavaScript natif."
+}
