@@ -54,6 +54,21 @@
 @media(max-width:580px){.boss-hud{top:34%;padding:8px 10px;width:min(260px,calc(100% - 40px))}.boss-hud>span{font-size:9px}.level-card:last-child{grid-column:auto;min-height:137px}}
 @media(orientation:landscape) and (max-height:520px){.boss-hud{top:35%;width:220px;padding:6px}.boss-hud>span{font-size:9px;margin-bottom:3px}}
 
+/* Ten-level campaign: two explicit chapters instead of a deceptively short list. */
+.game-heading .boss-jump{color:#ffd1b2;border:1px solid #ff87457a;background:#39203487;padding:9px 13px;border-radius:999px;text-decoration:none;font:700 10px Arial,sans-serif;letter-spacing:.5px;white-space:nowrap}
+.game-heading .boss-jump:hover,.game-heading .boss-jump:focus-visible{background:#5d2c42;color:#fff8ed}
+.campaign-chapter-heading{display:flex;justify-content:space-between;gap:14px;align-items:center;margin:22px 0 14px;padding:11px 14px;border-radius:6px;background:#231b32;border-left:3px solid #ffb16d}
+.campaign-chapter-heading span{font:700 12px Arial,sans-serif;letter-spacing:.8px;color:#ffe2c8}
+.campaign-chapter-heading small{font:9px monospace;letter-spacing:1px;color:#d5bddc;white-space:nowrap}
+.campaign-chapter-boss{margin-top:29px;background:linear-gradient(90deg,#442135,#261a3e);border-color:#da80c2;scroll-margin-top:18px}
+.campaign-chapter-boss span{color:#ffd5eb}
+.boss-hint{font:11px/1.6 Arial,sans-serif;color:#bdb0d3;margin:0 0 14px}
+.boss-mission{border-color:#7b476d;background:#25152e}
+.boss-mission .level-card-number{color:#f2a6d4}
+.boss-mission small{line-height:1.5}
+@media(max-width:800px){.game-heading .boss-jump{font-size:9px;padding:8px 10px}}
+@media(max-width:580px){.game-heading .boss-jump{font-size:8px;padding:8px 9px}.campaign-chapter-heading{padding:10px;margin-top:20px;align-items:flex-start}.campaign-chapter-heading span{font-size:10px}.campaign-chapter-heading small{font-size:8px;white-space:normal;text-align:right}.boss-hint{font-size:10px}}
+
 </style>
 </head>
 <body>
@@ -73,7 +88,7 @@
   </header>
 
   <main>
-    <div class="game-heading"><span><i></i> SPÉCIAL HALLOWEEN</span><p>5 niveaux. Des bonbons. Zéro permis.</p><span class="edition">ÉDITION DU 31 OCTOBRE</span></div>
+    <div class="game-heading"><span><i></i> SPÉCIAL HALLOWEEN</span><p>10 niveaux. 3 boss. Zéro permis.</p><a class="boss-jump" href="#boss-levels">VOIR LES 3 BOSS ↓</a><span class="edition">ÉDITION DU 31 OCTOBRE</span></div>
     <div class="drive-settings" aria-label="Réglages de conduite">
       <span class="selected-mission" id="selected-mission">MISSION 01 / 10</span>
       <label for="difficulty">Difficulté <select id="difficulty"><option value="balade">Balade · 5 vies</option><option value="arcade" selected>Arcade · 3 vies</option></select></label>
@@ -121,7 +136,12 @@
     </section>
     <section class="level-select" aria-labelledby="levels-title">
       <div class="route-header"><span id="levels-title">LES DIX LIVRAISONS DE L’APOCALYPSE</span><span id="progress-label">1 / 10 DÉBLOQUÉ</span></div>
-      <div class="level-list" id="level-list"></div><p class="level-brief" id="level-brief"></p>
+      <div class="campaign-chapter-heading"><span>ACTE I · LE GRAND DÉPART</span><small>MISSIONS 01 À 05</small></div>
+      <div class="level-list" id="level-list" aria-label="Niveaux 1 à 5"></div>
+      <div class="campaign-chapter-heading campaign-chapter-boss" id="boss-levels"><span>ACTE II · LA NUIT DES BOSS</span><small>MISSIONS 06 À 10 · 3 BOSS</small></div>
+      <p class="boss-hint">Le Roi Citrouille, la Reine des Spectres et le Dr Brocoli mutant t’attendent. Termine les missions précédentes pour les affronter.</p>
+      <div class="level-list" id="boss-level-list" aria-label="Niveaux 6 à 10 et boss"></div>
+      <p class="level-brief" id="level-brief"></p>
       <p class="save-note">Progression et records enregistrés sur cet appareil. Gagne une livraison pour débloquer la suivante.</p>
     </section>
   </main>
@@ -134,7 +154,7 @@
   <script>
 'use strict';
 
-// === dist/levels.js ===
+// ==== dist/levels.js ====
 const LEVELS = [
   {id:1,name:'Le cimetière',subtitle:'Les résidents sont plutôt calmes.',duration:35,goal:12,pace:0.86,scene:0,ghostChance:0.35,wave:1.55,icon:'✝',brief:'Le buffet de Dracula est vide. Première étape : récupérer les bonbons oubliés entre les tombes. Attention, les citrouilles ont la priorité à droite.',ending:'Le gardien du cimetière te remercie. Puis il te facture le stationnement. Même mort, il reste municipal.'},
   {id:2,name:'La forêt qui râle',subtitle:'Même les arbres klaxonnent.',duration:40,goal:16,pace:0.98,scene:1,ghostChance:0.72,wave:1.48,icon:'♠',brief:'Les fantômes ont monté un barrage : ils réclament des congés éternels. Un coup de klaxon devrait suffire à lancer les négociations.',ending:'Les fantômes lèvent leur barrage. Ils ont obtenu une pause déjeuner de 300 ans. Le syndicat est ravi.'},
@@ -153,7 +173,7 @@ function readProgress(value){try{const data=JSON.parse(value);if(!data||typeof d
 function recordResult(progress,{levelIndex,difficulty,score,won,lives,maxLives}){const key=`${difficulty}:${levelIndex+1}`,previous=progress.results[key]||{best:0,stars:0};const stars=won?(lives===maxLives?3:lives>=Math.ceil(maxLives/2)?2:1):0;progress.results[key]={best:Math.max(previous.best,Math.floor(score)),stars:Math.max(previous.stars,stars)};if(won)progress.unlocked=Math.max(progress.unlocked,Math.min(LEVELS.length,levelIndex+2));return {...progress.results[key],earnedStars:stars,newRecord:score>previous.best};}
 
 
-// === dist/engine.js ===
+// ==== dist/engine.js ====
 
 const GOAL=LEVELS[0].goal,DURATION=LEVELS[0].duration,PLAYER_Z=0.88,LANES=[-0.66,0,0.66];
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
@@ -233,13 +253,13 @@ class Game {
 }
 
 
-// === dist/geometry.js ===
+// ==== dist/geometry.js ====
 function viewMetrics(width,height){const mobile=width<580,front=width*(mobile?0.50:0.49),carScale=Math.min(0.88*height/650,width/600),objectScale=Math.min(0.76*height/650,width/600),playerUnit=(width*0.018+(front-width*0.018)*PLAYER_Z)*0.78;return {mobile,front,carScale,objectScale,playerUnit,maxX:clamp((width/2-70*carScale-12)/playerUnit,0.75,1.08),hitRadius:(52*carScale+26*objectScale*PLAYER_Z)/playerUnit*0.88};}
 function projectRoad(z,{width,height,center,horizon,front,travel=0}){const bend=(Math.sin(travel*0.7)*0.037*(1-z)**2+Math.sin(z*3+travel*0.45)*0.042*(1-z))*width;return {x:center+bend,y:horizon+(height-horizon)*z*z,half:width*0.018+(front-width*0.018)*z};}
 function dragTarget(startX,startClientX,clientX,playerUnit,maxX){return clamp(startX+(clientX-startClientX)/playerUnit,-maxX,maxX);}
 
 
-// === dist/scene.js ===
+// ==== dist/scene.js ====
 
 const TAU = Math.PI * 2;
 const noise = n => { const v = Math.sin(n * 127.1 + 41.7) * 43758.5453; return v - Math.floor(v); };
@@ -555,7 +575,7 @@ class Scene {
 }
 
 
-// === dist/audio.js ===
+// ==== dist/audio.js ====
 class AudioEngine {
   constructor(enabled=true){this.enabled=enabled;this.ctx=null;this.nextNote=0;this.beat=0;}
   init(){
@@ -607,7 +627,7 @@ class AudioEngine {
 }
 
 
-// === dist/app.js ===
+// ==== dist/app.js ====
 
 const $=id=>document.getElementById(id);
 const storage={get(key,fallback){try{return localStorage.getItem(key)??fallback;}catch{return fallback;}},set(key,value){try{localStorage.setItem(key,String(value));}catch{}}};
@@ -636,14 +656,15 @@ function say(name,text,duration=4.5){$('radio-name').textContent=name;$('radio-t
 function updateStage(){const level=game.level,pill=$('level-pill');pill.firstElementChild.textContent=String(level.id).padStart(2,'0');pill.lastElementChild.firstChild.textContent=level.name.toUpperCase();pill.querySelector('small').textContent=level.subtitle;}
 function renderLevels(){
   $('level-list').replaceChildren();
+  $('boss-level-list').replaceChildren();
   for(const [index,level] of LEVELS.entries()){
     const locked=level.id>progress.unlocked,record=progress.results[`${game.difficulty}:${level.id}`]||{stars:0,best:0};
-    const button=document.createElement('button');button.type='button';button.className='level-card';button.classList.toggle('selected',index===game.levelIndex);button.classList.toggle('locked',locked);button.disabled=locked||isDriving();button.setAttribute('aria-pressed',String(index===game.levelIndex));
+    const button=document.createElement('button');button.type='button';button.className='level-card';button.classList.toggle('selected',index===game.levelIndex);button.classList.toggle('locked',locked);button.classList.toggle('boss-mission',!!level.boss);button.disabled=locked||isDriving();button.setAttribute('aria-pressed',String(index===game.levelIndex));
     const number=document.createElement('span');number.className='level-card-number';number.textContent=`${String(level.id).padStart(2,'0')} · ${locked?'VERROUILLÉ':level.icon}`;
     const title=document.createElement('strong');title.textContent=level.name;
-    const target=document.createElement('small');target.textContent=`${level.duration} s · ${level.goal} bonbons${level.boss?' · BOSS':''}`;
+    const target=document.createElement('small');target.textContent=`${level.duration} s · ${level.goal} bonbons${level.boss?' · BOSS : '+level.boss.name:''}`;
     const stars=document.createElement('span');stars.className='level-stars';stars.textContent='★'.repeat(record.stars)+'☆'.repeat(3-record.stars);stars.setAttribute('aria-label',`${record.stars} étoiles sur 3`);
-    button.append(number,title,target,stars);button.addEventListener('click',()=>home(index));$('level-list').append(button);
+    button.append(number,title,target,stars);button.addEventListener('click',()=>home(index));$(index<5?'level-list':'boss-level-list').append(button);
   }
   $('progress-label').textContent=`${progress.unlocked} / ${LEVELS.length} DÉBLOQUÉ${progress.unlocked>1?'S':''}`;
   $('level-brief').textContent=game.level.brief;$('difficulty').disabled=isDriving();
