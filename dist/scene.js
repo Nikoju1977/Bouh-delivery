@@ -1,4 +1,4 @@
-import {clamp,PLAYER_Z} from './engine.js';
+import {clamp,PLAYER_Z} from './engine.js?v=13';
 import {viewMetrics,projectRoad} from './geometry.js';
 
 const TAU = Math.PI * 2;
