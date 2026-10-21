@@ -7,7 +7,7 @@
   <meta name="description" content="Dracula a faim. Son dentiste a un plan. Prends le volant du Bonbon Express et sauve Halloween dans ce jeu de course drôle et gratuit.">
   <title>BOUH! Delivery — La course aux bonbons</title>
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
-  <link rel="stylesheet" href="./style.css?v=11">
+  <link rel="stylesheet" href="./style.css?v=13">
 </head>
 <body>
   <div class="page-glow" aria-hidden="true"></div>
@@ -55,6 +55,7 @@
       <div class="boss-hud" id="boss-hud" hidden aria-label="Jauge de vie du boss"><span id="boss-name">BOSS</span><div class="boss-health-track"><i id="boss-health"></i></div><small id="boss-health-text">3 / 3 PV</small></div>
       <div class="play-bottom" id="play-bottom" hidden>
         <div class="turbo-meter"><div><span>✦ TURBO SUCRÉ</span><small id="turbo-label">ESPACE</small></div><div class="turbo-track"><i id="turbo-fill"></i></div></div>
+        <div class="weapon-status" id="weapon-status"><span>✦ LANCE-BONBONS</span><small id="weapon-label">F · TIR</small></div>
         <div class="speed-readout"><strong id="speed-value">88</strong><span>KM/H</span></div>
         <div class="honk-status" id="honk-status"><kbd>H</kbd><span>POUËT !</span></div>
       </div>
@@ -66,11 +67,11 @@
       <div class="canvas-footer" id="canvas-footer"><span>GARANTI SANS JUMPSCARE*</span><span>*Sauf le prix de l’essence.</span></div>
     </section>
 
-    <div class="touch-controls" id="touch-controls" hidden aria-label="Commandes tactiles"><div><button data-control="left" aria-label="Tourner à gauche">←</button><button data-control="right" aria-label="Tourner à droite">→</button></div><div><button data-control="brake" class="touch-brake" aria-label="Freiner">FREIN</button><button data-control="honk" class="touch-honk" aria-label="Klaxonner">POUËT</button><button data-control="boost" class="touch-boost" aria-label="Activer le turbo">TURBO ✦</button></div></div>
-    <p class="touch-tip" id="touch-tip" hidden>Glisse le doigt sur la route pour diriger. Le turbo reste accessible à l’autre main.</p>
+    <div class="touch-controls" id="touch-controls" hidden aria-label="Commandes tactiles"><div><button data-control="left" aria-label="Tourner à gauche">←</button><button data-control="right" aria-label="Tourner à droite">→</button></div><div><button data-control="brake" class="touch-brake" aria-label="Freiner">FREIN</button><button data-control="honk" class="touch-honk" aria-label="Klaxonner">POUËT</button><button data-control="shoot" class="touch-shoot" aria-label="Tirer des bonbons sur les obstacles">TIR ✦</button><button data-control="boost" class="touch-boost" aria-label="Activer le turbo">TURBO ✦</button></div></div>
+    <p class="touch-tip" id="touch-tip" hidden>Glisse le doigt sur la route pour diriger. Maintiens TIR ✦ pour dégager les fantômes et les citrouilles devant toi.</p>
     <section class="below-game" aria-label="Mission et commandes">
       <div class="mission-note"><span class="stamp" aria-hidden="true">✦</span><p><strong id="mission-title">La fête de Dracula compte sur toi.</strong><br><span id="mission-description">12 bonbons, 35 secondes. Et un corbillard de fonction.</span></p></div>
-      <div class="keyboard-guide"><div><span><kbd>←</kbd><kbd>→</kbd></span> Conduire</div><div><kbd class="wide-key">ESPACE</kbd> Turbo</div><div><kbd>↓</kbd> Freiner</div><div><kbd>H</kbd> Klaxonner</div><div><kbd>P</kbd> Pause</div></div>
+      <div class="keyboard-guide"><div><span><kbd>←</kbd><kbd>→</kbd></span> Conduire</div><div><kbd class="wide-key">ESPACE</kbd> Turbo</div><div><kbd>↓</kbd> Freiner</div><div><kbd>H</kbd> Klaxonner</div><div><kbd>F</kbd> Tirer</div><div><kbd>P</kbd> Pause</div></div>
     </section>
     <section class="level-select" aria-labelledby="levels-title">
       <div class="route-header"><span id="levels-title">LES DIX LIVRAISONS DE L’APOCALYPSE</span><span id="progress-label">1 / 10 DÉBLOQUÉ</span></div>
@@ -86,9 +87,9 @@
   <footer class="site-footer"><span>BOUH! DELIVERY <i>©</i> L’AU-DELÀ</span><p>Fait avec des bonbons et de très mauvaises intentions dentaires.</p><span>MEILLEUR SCORE <b id="footer-best">0000</b></span></footer>
 
   <dialog id="help-dialog" aria-labelledby="help-title"><button class="dialog-close icon-button" id="close-help" aria-label="Fermer les instructions">×</button><span class="eyebrow">LE MANUEL DU PARFAIT REVENANT</span><h2 id="help-title">Permis de <em>hanter.</em></h2><p>Le docteur Brocoli veut transformer Halloween en soirée crudités. Au volant du Bonbon Express, tu es le dernier espoir des caries.</p>
-    <div class="rules"><div><b>01</b><p><strong>Dix livraisons, trois boss.</strong>Atteins l’objectif de bonbons et survis jusqu’à l’arrivée. Dans les niveaux de boss, attrape les runes violettes pour vaincre ton ennemi avant minuit. La voiture avance toute seule.</p></div><div><b>02</b><p><strong>Conduis à ton rythme.</strong>3 vies en Arcade, 5 en Balade. Freine avec ↓ ou S. Ajuste la sensibilité au garage. Le klaxon fait fuir les fantômes proches ; les légumes n’ont pas d’oreilles.</p></div><div><b>03</b><p><strong>Turbo et petits coups de pouce.</strong>Espace ou ↑ pour accélérer. Le turbo vide attend 25 % de recharge. Un bouclier absorbe un choc ; un aimant attire les bonbons pendant 8 secondes. Garde tes vies pour gagner jusqu’à 3 étoiles.</p></div></div>
-    <div class="help-keys"><span><kbd>←</kbd> <kbd>→</kbd> ou <kbd>Q</kbd> <kbd>D</kbd> : diriger</span><span><kbd>↓</kbd> : frein · <kbd>H</kbd> : klaxon · <kbd>P</kbd> / Échap : pause</span></div><p class="mobile-note">Sur téléphone : glisse le doigt sur la route ou utilise les flèches. Maintiens le turbo avec un second doigt. Les niveaux et records sont sauvegardés sur cet appareil.</p><button class="primary-button" id="help-ready">J’ai mon permis de hanter <span>→</span></button>
+    <div class="rules"><div><b>01</b><p><strong>Dix livraisons, trois boss.</strong>Atteins l’objectif de bonbons et survis jusqu’à l’arrivée. Dans les niveaux de boss, attrape les runes violettes pour vaincre ton ennemi avant minuit. La voiture avance toute seule.</p></div><div><b>02</b><p><strong>Conduis à ton rythme.</strong>3 vies en Arcade, 5 en Balade. Freine avec ↓ ou S. Ajuste la sensibilité au garage. Le klaxon fait fuir les fantômes proches ; les légumes n’ont pas d’oreilles.</p></div><div><b>03</b><p><strong>Lance-bonbons et turbo.</strong>Maintiens F au clavier ou TIR ✦ sur mobile pour tirer sur les fantômes, citrouilles et brocolis sur ta trajectoire. Chaque tir recharge brièvement ; il ne détruit pas les boss, qui restent vulnérables aux runes violettes. Espace ou ↑ pour accélérer. Le turbo vide attend 25 % de recharge. Un bouclier absorbe un choc ; un aimant attire les bonbons pendant 8 secondes. Garde tes vies pour gagner jusqu’à 3 étoiles.</p></div></div>
+    <div class="help-keys"><span><kbd>←</kbd> <kbd>→</kbd> ou <kbd>Q</kbd> <kbd>D</kbd> : diriger</span><span><kbd>↓</kbd> : frein · <kbd>H</kbd> : klaxon · <kbd>F</kbd> : tirer · <kbd>P</kbd> / Échap : pause</span></div><p class="mobile-note">Sur téléphone : glisse le doigt sur la route ou utilise les flèches. Maintiens TIR ✦ ou le turbo avec un second doigt. Les niveaux et records sont sauvegardés sur cet appareil.</p><button class="primary-button" id="help-ready">J’ai mon permis de hanter <span>→</span></button>
   </dialog>
-  <script type="module" src="./app.js?v=12"></script>
+  <script type="module" src="./app.js?v=13"></script>
 </body>
 </html>
