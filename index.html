@@ -69,6 +69,21 @@
 @media(max-width:800px){.game-heading .boss-jump{font-size:9px;padding:8px 10px}}
 @media(max-width:580px){.game-heading .boss-jump{font-size:8px;padding:8px 9px}.campaign-chapter-heading{padding:10px;margin-top:20px;align-items:flex-start}.campaign-chapter-heading span{font-size:10px}.campaign-chapter-heading small{font-size:8px;white-space:normal;text-align:right}.boss-hint{font-size:10px}}
 
+/* Candy blaster: readable reload indicator and large, two-row mobile controls. */
+.weapon-status{position:absolute;bottom:1px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:4px;font:700 10px Arial,sans-serif;letter-spacing:.7px;color:#ffe2bf;text-shadow:0 1px 6px #160925}
+.weapon-status small{font:9px monospace;color:#fff2d1}
+.weapon-status.cooling small{color:#baa2c6}
+.touch-controls .touch-shoot{background:linear-gradient(145deg,#80428d,#b25989);border-color:#eca7d4;color:#fff4f5;font:bold 11px monospace;padding:0 12px;min-width:63px}
+.touch-controls .touch-shoot.held{background:#df87b9}
+@media(max-width:580px){
+  .weapon-status{bottom:4px;font-size:8px;gap:3px}
+  .weapon-status small{font-size:8px}
+  .touch-controls:not([hidden]){flex-direction:column;gap:7px;align-items:stretch}
+  .touch-controls>div{width:100%;justify-content:space-between;gap:7px}
+  .touch-controls button{flex:1;min-width:0}
+  .touch-controls .touch-shoot,.touch-controls .touch-boost{min-width:0;flex:1.2}
+}
+
 </style>
 </head>
 <body>
@@ -117,6 +132,7 @@
       <div class="boss-hud" id="boss-hud" hidden aria-label="Jauge de vie du boss"><span id="boss-name">BOSS</span><div class="boss-health-track"><i id="boss-health"></i></div><small id="boss-health-text">3 / 3 PV</small></div>
       <div class="play-bottom" id="play-bottom" hidden>
         <div class="turbo-meter"><div><span>✦ TURBO SUCRÉ</span><small id="turbo-label">ESPACE</small></div><div class="turbo-track"><i id="turbo-fill"></i></div></div>
+        <div class="weapon-status" id="weapon-status"><span>✦ LANCE-BONBONS</span><small id="weapon-label">F · TIR</small></div>
         <div class="speed-readout"><strong id="speed-value">88</strong><span>KM/H</span></div>
         <div class="honk-status" id="honk-status"><kbd>H</kbd><span>POUËT !</span></div>
       </div>
@@ -128,11 +144,11 @@
       <div class="canvas-footer" id="canvas-footer"><span>GARANTI SANS JUMPSCARE*</span><span>*Sauf le prix de l’essence.</span></div>
     </section>
 
-    <div class="touch-controls" id="touch-controls" hidden aria-label="Commandes tactiles"><div><button data-control="left" aria-label="Tourner à gauche">←</button><button data-control="right" aria-label="Tourner à droite">→</button></div><div><button data-control="brake" class="touch-brake" aria-label="Freiner">FREIN</button><button data-control="honk" class="touch-honk" aria-label="Klaxonner">POUËT</button><button data-control="boost" class="touch-boost" aria-label="Activer le turbo">TURBO ✦</button></div></div>
-    <p class="touch-tip" id="touch-tip" hidden>Glisse le doigt sur la route pour diriger. Le turbo reste accessible à l’autre main.</p>
+    <div class="touch-controls" id="touch-controls" hidden aria-label="Commandes tactiles"><div><button data-control="left" aria-label="Tourner à gauche">←</button><button data-control="right" aria-label="Tourner à droite">→</button></div><div><button data-control="brake" class="touch-brake" aria-label="Freiner">FREIN</button><button data-control="honk" class="touch-honk" aria-label="Klaxonner">POUËT</button><button data-control="shoot" class="touch-shoot" aria-label="Tirer des bonbons sur les obstacles">TIR ✦</button><button data-control="boost" class="touch-boost" aria-label="Activer le turbo">TURBO ✦</button></div></div>
+    <p class="touch-tip" id="touch-tip" hidden>Glisse le doigt sur la route pour diriger. Maintiens TIR ✦ pour dégager les fantômes et les citrouilles devant toi.</p>
     <section class="below-game" aria-label="Mission et commandes">
       <div class="mission-note"><span class="stamp" aria-hidden="true">✦</span><p><strong id="mission-title">La fête de Dracula compte sur toi.</strong><br><span id="mission-description">12 bonbons, 35 secondes. Et un corbillard de fonction.</span></p></div>
-      <div class="keyboard-guide"><div><span><kbd>←</kbd><kbd>→</kbd></span> Conduire</div><div><kbd class="wide-key">ESPACE</kbd> Turbo</div><div><kbd>↓</kbd> Freiner</div><div><kbd>H</kbd> Klaxonner</div><div><kbd>P</kbd> Pause</div></div>
+      <div class="keyboard-guide"><div><span><kbd>←</kbd><kbd>→</kbd></span> Conduire</div><div><kbd class="wide-key">ESPACE</kbd> Turbo</div><div><kbd>↓</kbd> Freiner</div><div><kbd>H</kbd> Klaxonner</div><div><kbd>F</kbd> Tirer</div><div><kbd>P</kbd> Pause</div></div>
     </section>
     <section class="level-select" aria-labelledby="levels-title">
       <div class="route-header"><span id="levels-title">LES DIX LIVRAISONS DE L’APOCALYPSE</span><span id="progress-label">1 / 10 DÉBLOQUÉ</span></div>
@@ -148,13 +164,13 @@
   <footer class="site-footer"><span>BOUH! DELIVERY <i>©</i> L’AU-DELÀ</span><p>Fait avec des bonbons et de très mauvaises intentions dentaires.</p><span>MEILLEUR SCORE <b id="footer-best">0000</b></span></footer>
 
   <dialog id="help-dialog" aria-labelledby="help-title"><button class="dialog-close icon-button" id="close-help" aria-label="Fermer les instructions">×</button><span class="eyebrow">LE MANUEL DU PARFAIT REVENANT</span><h2 id="help-title">Permis de <em>hanter.</em></h2><p>Le docteur Brocoli veut transformer Halloween en soirée crudités. Au volant du Bonbon Express, tu es le dernier espoir des caries.</p>
-    <div class="rules"><div><b>01</b><p><strong>Dix livraisons, trois boss.</strong>Atteins l’objectif de bonbons et survis jusqu’à l’arrivée. Dans les niveaux de boss, attrape les runes violettes pour vaincre ton ennemi avant minuit. La voiture avance toute seule.</p></div><div><b>02</b><p><strong>Conduis à ton rythme.</strong>3 vies en Arcade, 5 en Balade. Freine avec ↓ ou S. Ajuste la sensibilité au garage. Le klaxon fait fuir les fantômes proches ; les légumes n’ont pas d’oreilles.</p></div><div><b>03</b><p><strong>Turbo et petits coups de pouce.</strong>Espace ou ↑ pour accélérer. Le turbo vide attend 25 % de recharge. Un bouclier absorbe un choc ; un aimant attire les bonbons pendant 8 secondes. Garde tes vies pour gagner jusqu’à 3 étoiles.</p></div></div>
-    <div class="help-keys"><span><kbd>←</kbd> <kbd>→</kbd> ou <kbd>Q</kbd> <kbd>D</kbd> : diriger</span><span><kbd>↓</kbd> : frein · <kbd>H</kbd> : klaxon · <kbd>P</kbd> / Échap : pause</span></div><p class="mobile-note">Sur téléphone : glisse le doigt sur la route ou utilise les flèches. Maintiens le turbo avec un second doigt. Les niveaux et records sont sauvegardés sur cet appareil.</p><button class="primary-button" id="help-ready">J’ai mon permis de hanter <span>→</span></button>
+    <div class="rules"><div><b>01</b><p><strong>Dix livraisons, trois boss.</strong>Atteins l’objectif de bonbons et survis jusqu’à l’arrivée. Dans les niveaux de boss, attrape les runes violettes pour vaincre ton ennemi avant minuit. La voiture avance toute seule.</p></div><div><b>02</b><p><strong>Conduis à ton rythme.</strong>3 vies en Arcade, 5 en Balade. Freine avec ↓ ou S. Ajuste la sensibilité au garage. Le klaxon fait fuir les fantômes proches ; les légumes n’ont pas d’oreilles.</p></div><div><b>03</b><p><strong>Lance-bonbons et turbo.</strong>Maintiens F au clavier ou TIR ✦ sur mobile pour tirer sur les fantômes, citrouilles et brocolis sur ta trajectoire. Chaque tir recharge brièvement ; il ne détruit pas les boss, qui restent vulnérables aux runes violettes. Espace ou ↑ pour accélérer. Le turbo vide attend 25 % de recharge. Un bouclier absorbe un choc ; un aimant attire les bonbons pendant 8 secondes. Garde tes vies pour gagner jusqu’à 3 étoiles.</p></div></div>
+    <div class="help-keys"><span><kbd>←</kbd> <kbd>→</kbd> ou <kbd>Q</kbd> <kbd>D</kbd> : diriger</span><span><kbd>↓</kbd> : frein · <kbd>H</kbd> : klaxon · <kbd>F</kbd> : tirer · <kbd>P</kbd> / Échap : pause</span></div><p class="mobile-note">Sur téléphone : glisse le doigt sur la route ou utilise les flèches. Maintiens TIR ✦ ou le turbo avec un second doigt. Les niveaux et records sont sauvegardés sur cet appareil.</p><button class="primary-button" id="help-ready">J’ai mon permis de hanter <span>→</span></button>
   </dialog>
   <script>
 'use strict';
 
-// ==== dist/levels.js ====
+// ---- dist/levels.js ----
 const LEVELS = [
   {id:1,name:'Le cimetière',subtitle:'Les résidents sont plutôt calmes.',duration:35,goal:12,pace:0.86,scene:0,ghostChance:0.35,wave:1.55,icon:'✝',brief:'Le buffet de Dracula est vide. Première étape : récupérer les bonbons oubliés entre les tombes. Attention, les citrouilles ont la priorité à droite.',ending:'Le gardien du cimetière te remercie. Puis il te facture le stationnement. Même mort, il reste municipal.'},
   {id:2,name:'La forêt qui râle',subtitle:'Même les arbres klaxonnent.',duration:40,goal:16,pace:0.98,scene:1,ghostChance:0.72,wave:1.48,icon:'♠',brief:'Les fantômes ont monté un barrage : ils réclament des congés éternels. Un coup de klaxon devrait suffire à lancer les négociations.',ending:'Les fantômes lèvent leur barrage. Ils ont obtenu une pause déjeuner de 300 ans. Le syndicat est ravi.'},
@@ -173,7 +189,7 @@ function readProgress(value){try{const data=JSON.parse(value);if(!data||typeof d
 function recordResult(progress,{levelIndex,difficulty,score,won,lives,maxLives}){const key=`${difficulty}:${levelIndex+1}`,previous=progress.results[key]||{best:0,stars:0};const stars=won?(lives===maxLives?3:lives>=Math.ceil(maxLives/2)?2:1):0;progress.results[key]={best:Math.max(previous.best,Math.floor(score)),stars:Math.max(previous.stars,stars)};if(won)progress.unlocked=Math.max(progress.unlocked,Math.min(LEVELS.length,levelIndex+2));return {...progress.results[key],earnedStars:stars,newRecord:score>previous.best};}
 
 
-// ==== dist/engine.js ====
+// ---- dist/engine.js ----
 
 const GOAL=LEVELS[0].goal,DURATION=LEVELS[0].duration,PLAYER_Z=0.88,LANES=[-0.66,0,0.66];
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
@@ -181,7 +197,7 @@ class Game {
   constructor({random=Math.random,onEvent=()=>{}}={}){this.random=random;this.onEvent=onEvent;this.difficulty='arcade';this.sensitivity=1;this.levelIndex=0;this.maxX=1.08;this.hitRadius=0.23;this.reset();this.mode='menu';}
   get level(){return LEVELS[this.levelIndex];} get goal(){return this.level.goal;} get duration(){return this.level.duration;}
   configure({difficulty,sensitivity,maxX,hitRadius,levelIndex}={}){if(MODES[difficulty])this.difficulty=difficulty;if(Number.isInteger(levelIndex))this.levelIndex=clamp(levelIndex,0,LEVELS.length-1);if(Number.isFinite(sensitivity))this.sensitivity=clamp(sensitivity,0.65,1.4);if(Number.isFinite(maxX))this.maxX=clamp(maxX,0.75,1.08);if(Number.isFinite(hitRadius))this.hitRadius=clamp(hitRadius,0.1,0.38);this.x=clamp(this.x||0,-this.maxX,this.maxX);}
-  reset(){this.elapsed=0;this.distance=0;this.x=0;this.steer=0;this.vx=0;this.candies=0;this.lives=MODES[this.difficulty].lives;this.maxLives=this.lives;this.score=0;this.combo=0;this.bestCombo=0;this.comboClock=0;this.fuel=100;this.boosting=false;this.boostLocked=false;this.braking=false;this.slow=0;this.invulnerable=0;this.honkCooldown=0;this.honkWave=0;this.shield=0;this.magnet=0;this.nextPowerup=6;this.powerupCount=0;this.objects=[];this.waveClock=0.4;this.stage=this.level.scene;this.lastCandyLane=1;this.hitCount=0;this.ghostsScared=0;this.nearMisses=0;this.id=0;this.speed=Math.round(88*this.level.pace*MODES[this.difficulty].pace);this.mode='ready';this.won=false;this.boss=this.level.boss?{...this.level.boss,hp:this.level.boss.hp,active:false,defeated:false,runeClock:0,attackClock:1.6,shots:0,attacks:0}:null;}
+  reset(){this.elapsed=0;this.distance=0;this.x=0;this.steer=0;this.vx=0;this.candies=0;this.lives=MODES[this.difficulty].lives;this.maxLives=this.lives;this.score=0;this.combo=0;this.bestCombo=0;this.comboClock=0;this.fuel=100;this.boosting=false;this.boostLocked=false;this.braking=false;this.slow=0;this.invulnerable=0;this.honkCooldown=0;this.honkWave=0;this.shotCooldown=0;this.projectiles=[];this.shotsFired=0;this.targetsHit=0;this.shield=0;this.magnet=0;this.nextPowerup=6;this.powerupCount=0;this.objects=[];this.waveClock=0.4;this.stage=this.level.scene;this.lastCandyLane=1;this.hitCount=0;this.ghostsScared=0;this.nearMisses=0;this.id=0;this.speed=Math.round(88*this.level.pace*MODES[this.difficulty].pace);this.mode='ready';this.won=false;this.boss=this.level.boss?{...this.level.boss,hp:this.level.boss.hp,active:false,defeated:false,runeClock:0,attackClock:1.6,shots:0,attacks:0}:null;}
   start(){this.mode='playing';} pause(){if(this.mode==='playing'){this.mode='paused';this.boosting=false;this.braking=false;this.vx=0;this.steer=0;}} resume(){if(this.mode==='paused')this.mode='playing';} emit(type,detail={}){this.onEvent({type,...detail});}
   spawnWave(){
     const choices=[0,1,2].filter(lane=>Math.abs(lane-this.lastCandyLane)<=1),candyLane=choices[Math.floor(this.random()*choices.length)];this.lastCandyLane=candyLane;const obstacleLane=(candyLane+1+Math.floor(this.random()*2))%3;
@@ -190,6 +206,14 @@ class Game {
     if(this.elapsed>=this.nextPowerup){this.objects.push({id:++this.id,type:this.powerupCount%2===0?'shield':'magnet',x:LANES[candyLane],z:-0.22,seed:0});this.powerupCount++;this.nextPowerup+=10;}
   }
   honk(){if(this.mode!=='playing'||this.honkCooldown>0)return false;this.honkCooldown=3.5;this.honkWave=0.65;let count=0;for(const o of this.objects)if(o.type==='ghost'&&o.z>0.38&&!o.fleeing&&!o.done){o.fleeing=true;o.fleeDir=o.x>=this.x?1:-1;count++;this.ghostsScared++;this.score+=75;}this.emit('honk',{count});return true;}
+  shoot(){
+    if(this.mode!=='playing'||this.shotCooldown>0)return false;
+    this.shotCooldown=.5;
+    this.shotsFired++;
+    this.projectiles.push({id:++this.id,x:this.x,z:PLAYER_Z-.085});
+    this.emit('shoot',{x:this.x});
+    return true;
+  }
   finish(won,reason){if(this.mode==='over')return;this.mode='over';this.won=won;this.boosting=false;this.braking=false;this.vx=0;if(won)this.score+=this.lives*500;this.emit('finish',{won,reason});}
   move(dt,input){
     const maxSpeed=2.2*this.sensitivity,axis=clamp(Number.isFinite(input.axis)?input.axis:0,-1,1),targetX=Number.isFinite(input.targetX)?clamp(input.targetX,-this.maxX,this.maxX):null;
@@ -200,8 +224,8 @@ class Game {
   }
   step(dt,input={}){if(this.mode!=='playing'||!Number.isFinite(dt)||dt<=0)return;let remaining=Math.min(dt,0.25);while(remaining>1e-9&&this.mode==='playing'){const slice=Math.min(remaining,1/120);this.advance(slice,input);remaining-=slice;}}
   advance(dt,input){
-    this.elapsed=Math.min(this.duration,this.elapsed+dt);for(const key of ['invulnerable','slow','honkCooldown','honkWave','magnet','comboClock'])this[key]=Math.max(0,this[key]-dt);if(this.comboClock===0)this.combo=0;
-    this.move(dt,input);this.braking=!!input.brake;if(this.fuel>=25)this.boostLocked=false;this.boosting=!!input.boost&&!this.braking&&!this.boostLocked&&this.fuel>0&&this.slow<=0;this.fuel=clamp(this.fuel+dt*(this.boosting?-32:14),0,100);if(this.fuel===0){this.boostLocked=true;this.boosting=false;}
+    this.elapsed=Math.min(this.duration,this.elapsed+dt);for(const key of ['invulnerable','slow','honkCooldown','honkWave','shotCooldown','magnet','comboClock'])this[key]=Math.max(0,this[key]-dt);if(this.comboClock===0)this.combo=0;
+    this.move(dt,input);if(input.shoot)this.shoot();this.braking=!!input.brake;if(this.fuel>=25)this.boostLocked=false;this.boosting=!!input.boost&&!this.braking&&!this.boostLocked&&this.fuel>0&&this.slow<=0;this.fuel=clamp(this.fuel+dt*(this.boosting?-32:14),0,100);if(this.fuel===0){this.boostLocked=true;this.boosting=false;}
     const multiplier=(this.boosting?1.6:this.braking?0.66:1)*(Math.abs(this.x)>0.98?0.76:1)*(this.slow>0?0.55:1)*MODES[this.difficulty].pace*this.level.pace;this.speed=Math.round(88*multiplier);const velocity=0.265*multiplier;this.distance+=velocity*dt;this.score+=dt*(this.boosting?20:10);this.waveClock-=dt*multiplier;if(this.waveClock<=0){this.spawnWave();this.waveClock+=this.level.wave;}
     // Bosses appear in the final 38% of their missions. Every weak point is a
     // visible rune pickup; hazards use the same fair collision rules as traffic.
@@ -245,6 +269,21 @@ class Game {
         }else if(!collectible&&!o.fleeing&&gap<this.hitRadius+0.12&&this.invulnerable<=0){this.nearMisses++;this.score+=50;this.emit('nearMiss');}
       }
     }
+    // Candy shots travel up the road, and only clear ordinary traffic hazards.
+    // They cannot collect candies, destroy boss projectiles, or hurt bosses:
+    // defeating a boss still requires the three purple runes.
+    for(const shot of this.projectiles){
+      const previousZ=shot.z;shot.z-=dt*1.28;
+      for(const o of this.objects){
+        if(o.done||o.collected||o.fleeing||!['ghost','pumpkin','broccoli'].includes(o.type))continue;
+        if(o.z>=PLAYER_Z||Math.abs(o.x-shot.x)>.27)continue;
+        if(o.z>=shot.z-.045&&o.z<=previousZ+.045){
+          shot.hit=true;o.collected=true;this.targetsHit++;this.score+=150;
+          this.emit('targetHit',{target:o.type,x:o.x,z:o.z});break;
+        }
+      }
+    }
+    this.projectiles=this.projectiles.filter(p=>!p.hit&&p.z>.025);
     this.objects=this.objects.filter(o=>o.z<1.25&&!o.collected&&Math.abs(o.x)<3.5);if(this.elapsed>=this.duration){
       const candyOK=this.candies>=this.goal,bossOK=!this.boss||this.boss.defeated;
       this.finish(candyOK&&bossOK,!candyOK?'candies':!bossOK?'boss':'delivered');
@@ -253,13 +292,13 @@ class Game {
 }
 
 
-// ==== dist/geometry.js ====
+// ---- dist/geometry.js ----
 function viewMetrics(width,height){const mobile=width<580,front=width*(mobile?0.50:0.49),carScale=Math.min(0.88*height/650,width/600),objectScale=Math.min(0.76*height/650,width/600),playerUnit=(width*0.018+(front-width*0.018)*PLAYER_Z)*0.78;return {mobile,front,carScale,objectScale,playerUnit,maxX:clamp((width/2-70*carScale-12)/playerUnit,0.75,1.08),hitRadius:(52*carScale+26*objectScale*PLAYER_Z)/playerUnit*0.88};}
 function projectRoad(z,{width,height,center,horizon,front,travel=0}){const bend=(Math.sin(travel*0.7)*0.037*(1-z)**2+Math.sin(z*3+travel*0.45)*0.042*(1-z))*width;return {x:center+bend,y:horizon+(height-horizon)*z*z,half:width*0.018+(front-width*0.018)*z};}
 function dragTarget(startX,startClientX,clientX,playerUnit,maxX){return clamp(startX+(clientX-startClientX)/playerUnit,-maxX,maxX);}
 
 
-// ==== dist/scene.js ====
+// ---- dist/scene.js ----
 
 const TAU = Math.PI * 2;
 const noise = n => { const v = Math.sin(n * 127.1 + 41.7) * 43758.5453; return v - Math.floor(v); };
@@ -306,6 +345,10 @@ class Scene {
       const p=this.road(PLAYER_Z),x=p.x+this.game.x*p.half*.78;
       for(let i=0;i<10;i++)this.effects.push({x,y:p.y-30,vx:(Math.random()-.5)*160,vy:-80-Math.random()*130,life:.6,max:.6,color:i%2?'#ffd484':'#d2a9ff',size:2+Math.random()*3});
     }
+    if(e.type==='targetHit'){
+      const p=this.road(e.z),x=p.x+e.x*p.half*.78;
+      for(let i=0;i<18;i++)this.effects.push({x,y:p.y-18,vx:(Math.random()-.5)*185,vy:-35-Math.random()*135,life:.55,max:.55,color:e.target==='ghost'?'#c9abff':e.target==='pumpkin'?'#ffb55b':'#a6ef99',size:2+Math.random()*5});
+    }
     if(e.type==='hit'){
       const p=this.road(PLAYER_Z),x=p.x+this.game.x*p.half*.78;
       for(let i=0;i<20;i++)this.effects.push({x,y:p.y-30,vx:(Math.random()-.5)*270,vy:-50-Math.random()*150,life:.8,max:.8,color:'#ff854b',size:2+Math.random()*4});
@@ -326,7 +369,7 @@ class Scene {
     c.save();
     if(this.shake>0&&!this.reduced&&g.mode==='playing'){this.shake=Math.max(0,this.shake-dt);c.translate(Math.sin(this.time*100)*this.shake*8,Math.cos(this.time*120)*this.shake*5);}
     this.sky();this.landscape();this.roadSurface();this.scenery();this.bossFigure();
-    const objects=this.menu?[{type:'candy',x:-.65,z:.55,seed:0},{type:'candy',x:-.65,z:.65,seed:1},{type:'candy',x:.66,z:.32,seed:2},{type:'pumpkin',x:.68,z:.64,seed:3},{type:'ghost',x:-1.17,z:.79,seed:4}]:g.objects;
+    const objects=this.menu?[{type:'candy',x:-.65,z:.55,seed:0},{type:'candy',x:-.65,z:.65,seed:1},{type:'candy',x:.66,z:.32,seed:2},{type:'pumpkin',x:.68,z:.64,seed:3},{type:'ghost',x:-1.17,z:.79,seed:4}]:[...g.objects,...g.projectiles.map(p=>({...p,type:'shot'}))];
     let carDrawn=false;
     for(const o of [...objects].sort((a,b)=>a.z-b.z)){
       if(o.z>PLAYER_Z&&!carDrawn){this.vehicle();carDrawn=true;}
@@ -334,7 +377,8 @@ class Scene {
       const p=this.road(o.z),x=p.x+o.x*p.half*.78,scale=o.z*this.metrics.objectScale;
       c.save();c.translate(x,p.y);
       if(o.fleeing){c.rotate(Math.sin(this.time*20)*.3);c.globalAlpha=clamp(1-(Math.abs(o.x)-1)*.6,0,1);}
-      if(o.type==='candy')this.candy(0,0,scale,this.time*2+o.seed);
+      if(o.type==='shot')this.candyShot(scale);
+      else if(o.type==='candy')this.candy(0,0,scale,this.time*2+o.seed);
       else if(o.type==='pumpkin')this.pumpkin(0,0,scale*1.06,true);
       else if(o.type==='broccoli')this.broccoli(0,0,scale);
       else if(o.type==='shield'||o.type==='magnet')this.powerup(0,0,scale,o.type);
@@ -520,6 +564,16 @@ class Scene {
     this.path([[0,-19],[13,0],[0,19],[-13,0]],'#faf2c7');
     c.restore();
   }
+  candyShot(s){
+    const c=this.ctx;c.save();c.translate(0,-18*s);c.scale(s,s);
+    this.glow(0,0,45,'#bcb7ff66');
+    this.ellipse(0,0,10,14,'#f5daff');
+    this.ellipse(-3,-4,4,5,'#ffffff');
+    this.path([[-13,-4],[-25,-10],[-17,1],[-25,10],[-12,5]],'#ffa85f');
+    this.path([[13,-4],[25,-10],[17,1],[25,10],[12,5]],'#ffa85f');
+    this.line([[-4,-19],[-6,-27]],'#ffe9c5',2);
+    c.restore();
+  }
   bossProjectile(x,y,s){
     const c=this.ctx;c.save();c.translate(x,y-19*s);c.scale(s,s);
     this.glow(0,0,47,'#ff534a66');
@@ -575,7 +629,7 @@ class Scene {
 }
 
 
-// ==== dist/audio.js ====
+// ---- dist/audio.js ----
 class AudioEngine {
   constructor(enabled=true){this.enabled=enabled;this.ctx=null;this.nextNote=0;this.beat=0;}
   init(){
@@ -603,6 +657,8 @@ class AudioEngine {
     if(type==='candy'){this.tone(880,.12,'sine',.13);this.tone(1320,.19,'sine',.08,.065);}
     if(type==='hit'){this.tone(110,.35,'sawtooth',.09,0,28);this.tone(48,.25,'triangle',.2);}
     if(type==='honk'){this.tone(233,.26,'sawtooth',.07,0,185);this.tone(349,.28,'triangle',.16,0,277);this.tone(233,.14,'square',.025,.3,196);}
+    if(type==='shoot'){this.tone(820,.10,'triangle',.065,0,360);this.tone(1220,.08,'sine',.04);}
+    if(type==='targetHit'){this.tone(360,.12,'triangle',.07,0,740);this.tone(950,.17,'sine',.09,.035);}
     if(type==='count'){this.tone(523,.13,'triangle',.15);}
     if(type==='go'){this.tone(1046,.4,'triangle',.14);}
     if(type==='win'){[523,659,784,1046,1318,1568].forEach((n,i)=>this.tone(n,.38,'triangle',.1,i*.12));}
@@ -627,7 +683,7 @@ class AudioEngine {
 }
 
 
-// ==== dist/app.js ====
+// ---- dist/app.js ----
 
 const $=id=>document.getElementById(id);
 const storage={get(key,fallback){try{return localStorage.getItem(key)??fallback;}catch{return fallback;}},set(key,value){try{localStorage.setItem(key,String(value));}catch{}}};
@@ -715,12 +771,13 @@ function finish(event){
   ($('next-level-button').hidden?$('replay-button'):$('next-level-button')).focus({preventScroll:true});
 }
 function handleEvent(e){
-  scene?.event(e);if(['candy','hit','honk'].includes(e.type))audio.effect(e.type);
+  scene?.event(e);if(['candy','hit','honk','shoot','targetHit'].includes(e.type))audio.effect(e.type);
   if(e.type==='candy'){if(e.goal){showToast('LE SAC EST PLEIN ! TIENS BON !',2.5);say('DRACULA · RADIO 6.66','Maintenant, livre-le en un seul morceau. Le sac, pas le chauffeur.');}else if(e.combo%8===0)showToast(`COMBO ×${e.combo} !`);}
   if(e.type==='hit')showToast(e.obstacle==='broccoli'?'PAS DANS LA SOUPE !':e.obstacle==='pumpkin'?'PURÉE DE CITROUILLE !':'CONSTAT À L’AMIÂBLE !');
   if(e.type==='honk')showToast(e.count?'PARDON, J’ÉTAIS MORT !':'POUËT !',1.2);
   if(e.type==='powerup'){audio.effect('go');showToast(e.powerup==='shield'?'ASSURANCE TOUS FANTÔMES !':'AIMANT À CARIES · 8 S');}
   if(e.type==='shield'){audio.effect('honk');showToast('LE BOUCLIER A TOUT PRIS !');}
+  if(e.type==='targetHit')showToast(e.target==='ghost'?'FANTÔME CHASSÉ ! +150':e.target==='pumpkin'?'CITROUILLE ÉCLATÉE ! +150':'BROCOLI PULVÉRISÉ ! +150',1.1);
   if(e.type==='nearMiss')showToast('ÇA PASSE ! +50',1);
   if(e.type==='bossStart'){showToast('ATTENTION · '+e.name,2.5);say('ALERTE DU GPS POSSÉDÉ','Boss devant ! Attrape les runes violettes pour le vaincre.',4);}
   if(e.type==='bossHit'){audio.effect('candy');showToast('BOSS TOUCHÉ · '+e.hp+' PV',1.5);}
@@ -732,6 +789,8 @@ function updateHud(){
   $('timer-value').parentElement.classList.toggle('urgent',remaining<=10);$('candy-value').textContent=String(game.candies).padStart(2,'0');$('goal-target').textContent=` / ${game.goal}`;$('goal-fill').style.width=Math.min(100,game.candies/game.goal*100)+'%';
   $('lives-value').textContent=Array.from({length:game.maxLives},(_,i)=>i<game.lives?'♥':'♡').join(' ');$('lives-value').setAttribute('aria-label',`${game.lives} vies restantes`);
   $('score-value').textContent=Math.floor(game.score).toLocaleString('fr-FR');$('turbo-fill').style.width=game.fuel+'%';$('turbo-label').textContent=game.braking?'FREIN':game.boosting?'WOUHOU !':game.boostLocked?'RECHARGE':'ESPACE';$('speed-value').textContent=game.speed;
+  $('weapon-label').textContent=game.shotCooldown>0?'RECHARGE':'F · TIR';
+  $('weapon-status').classList.toggle('cooling',game.shotCooldown>0);
   $('honk-status').classList.toggle('cooling',game.honkCooldown>0);$('honk-status').querySelector('span').textContent=game.honkCooldown>0?`${Math.ceil(game.honkCooldown)} S`:'POUËT !';
   const badges=[];if(game.shield)badges.push('⬡ BOUCLIER');if(game.magnet>0)badges.push(`✦ AIMANT ${Math.ceil(game.magnet)} S`);if(game.combo>=4)badges.push(`COMBO ×${game.combo}`);
   const b=game.boss,bossVisible=b?.active&&!b.defeated&&(game.mode==='playing'||game.mode==='paused');
@@ -742,7 +801,7 @@ function updateHud(){
 function input(){
   const touch=new Set(touchPointers.values());
   const axis=(keys.has('arrowright')||keys.has('d')||touch.has('right')?1:0)-(keys.has('arrowleft')||keys.has('q')||keys.has('a')||touch.has('left')?1:0);
-  return {axis,targetX:axis?undefined:drag?.target,boost:keys.has(' ')||keys.has('arrowup')||keys.has('w')||keys.has('z')||touch.has('boost'),brake:keys.has('arrowdown')||keys.has('s')||touch.has('brake')};
+  return {axis,targetX:axis?undefined:drag?.target,boost:keys.has(' ')||keys.has('arrowup')||keys.has('w')||keys.has('z')||touch.has('boost'),brake:keys.has('arrowdown')||keys.has('s')||touch.has('brake'),shoot:keys.has('f')||touch.has('shoot')};
 }
 for(const id of ['start-button','replay-button','restart-pause'])$(id).addEventListener('click',start);
 $('home-button').addEventListener('click',()=>home());$('pause-button').addEventListener('click',pause);$('resume-button').addEventListener('click',resume);
@@ -757,7 +816,7 @@ $('help-dialog').addEventListener('click',event=>{if(event.target===$('help-dial
 document.addEventListener('keydown',event=>{
   if($('help-dialog').open||['INPUT','SELECT','TEXTAREA'].includes(event.target.tagName))return;
   const key=event.key.toLowerCase();if(game.mode==='over'&&key==='r'&&!event.repeat){event.preventDefault();start();return;}
-  if(isDriving()&&['arrowleft','arrowright','arrowup','arrowdown',' ','h','p','q','d','a','w','z','s','escape'].includes(key)){
+  if(isDriving()&&['arrowleft','arrowright','arrowup','arrowdown',' ','h','p','q','d','a','w','z','s','f','escape'].includes(key)){
     event.preventDefault();if((key==='p'||key==='escape')&&!event.repeat){game.mode==='playing'?pause():resume();return;}
     if(game.mode==='playing'){keys.add(key);if(key==='h'&&!event.repeat&&countdownRemaining<=0)game.honk();}
   }
