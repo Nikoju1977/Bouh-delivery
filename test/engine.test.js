@@ -24,7 +24,7 @@ test('brake takes priority over turbo without consuming fuel',()=>{const {game}=
 test('shield absorbs exactly one impact',()=>{const {game}=setup();game.objects=[object('shield')];game.step(.05);assert.equal(game.shield,1);game.objects=[object('pumpkin')];game.step(.05);assert.equal(game.shield,0);assert.equal(game.lives,3);run(game,1.1);game.objects=[object('broccoli')];game.step(.05);assert.equal(game.lives,2);});
 test('magnet attracts nearby candies and expires',()=>{const {game}=setup();game.objects=[object('magnet')];game.step(.05);assert.ok(game.magnet>7.9);game.objects=[object('candy',.65,.62)];run(game,1.3);assert.equal(game.candies,1);run(game,7);assert.equal(game.magnet,0);});
 test('pause freezes time, motion and effects',()=>{const {game}=setup();game.magnet=8;run(game,.2,{axis:1});game.pause();const before=[game.elapsed,game.x,game.fuel,game.magnet];run(game,1,{axis:1,boost:true});assert.deepEqual([game.elapsed,game.x,game.fuel,game.magnet],before);assert.equal(game.vx,0);game.resume();game.step(.05);assert.ok(game.elapsed>before[0]);});
-test('five levels have distinct environments and complete their own objectives',()=>{assert.equal(LEVELS.length,5);assert.equal(new Set(LEVELS.map(l=>l.scene)).size,5);for(const [levelIndex,level]of LEVELS.entries()){const {game}=setup();game.configure({levelIndex});game.reset();game.start();game.waveClock=999;assert.equal(game.stage,level.scene);game.candies=level.goal;game.elapsed=level.duration-.01;game.step(.05);assert.equal(game.won,true);assert.equal(game.elapsed,level.duration);game.reset();assert.equal(game.candies,0);assert.equal(game.lives,3);}});
+test('ten levels have distinct environments and complete their own objectives',()=>{assert.equal(LEVELS.length,10);assert.equal(new Set(LEVELS.map(l=>l.scene)).size,10);for(const [levelIndex,level]of LEVELS.entries()){const {game}=setup();game.configure({levelIndex});game.reset();game.start();game.waveClock=999;assert.equal(game.stage,level.scene);game.candies=level.goal;if(game.boss)game.boss.defeated=true;game.elapsed=level.duration-.01;game.step(.05);assert.equal(game.won,true);assert.equal(game.elapsed,level.duration);game.reset();assert.equal(game.candies,0);assert.equal(game.lives,3);}});
 test('meeting the candy target still requires surviving until the finish',()=>{const {game}=setup();game.candies=game.goal;game.elapsed=game.duration-1;game.step(.05);assert.equal(game.mode,'playing');});
 test('the time limit with insufficient candy loses',()=>{const {game,events}=setup();game.candies=game.goal-1;game.elapsed=game.duration-.01;game.step(.05);assert.equal(game.won,false);assert.equal(events.at(-1).reason,'candies');});
 test('Balade gives five lives and a slower pace',()=>{const a=setup().game,b=setup().game;b.configure({difficulty:'balade'});b.reset();b.start();a.step(.05);b.step(.05);assert.equal(b.lives,5);assert.ok(b.speed<a.speed);});
@@ -38,7 +38,9 @@ test('all campaign levels have reachable candy paths in both modes, over 120 run
     for(let seed=1;seed<=12;seed++){
       let state=seed;const random=()=>{state=(Math.imul(1664525,state)+1013904223)>>>0;return state/4294967296;};const game=new Game({random});game.configure({...viewMetrics(375,590),difficulty,levelIndex});game.reset();game.start();
       for(let i=0;i<8000&&game.mode==='playing';i++){
-        const target=game.objects.filter(o=>o.type==='candy'&&!o.done&&o.z>0).sort((a,b)=>b.z-a.z)[0];
+        const candy=game.objects.filter(o=>o.type==='candy'&&!o.done&&o.z>0).sort((a,b)=>b.z-a.z)[0];
+        const rune=game.boss?.active&&!game.boss.defeated?game.objects.filter(o=>o.type==='rune'&&!o.done&&o.z>0).sort((a,b)=>b.z-a.z)[0]:null;
+        const target=rune||candy;
         if(game.objects.some(o=>o.type==='ghost'&&!o.fleeing&&o.z>.70&&Math.abs(o.x-game.x)<.4))game.honk();
         game.step(1/120,{targetX:target?.x});assert.ok(Number.isFinite(game.score));assert.ok(game.objects.length<35);
       }
@@ -46,4 +48,39 @@ test('all campaign levels have reachable candy paths in both modes, over 120 run
     }
     assert.ok(wins>=10,`${difficulty} / ${level.name}: only ${wins}/12 successful routes`);console.log(`${difficulty} / ${level.name}: ${wins}/12`);
   }
+});
+
+
+test('boss stages require defeating their boss as well as the candy goal',()=>{
+  const bosses=LEVELS.filter(l=>l.boss);assert.equal(bosses.length,3);
+  for(const level of bosses){
+    const {game,events}=setup();game.configure({levelIndex:level.id-1});game.reset();game.start();
+    game.elapsed=level.duration*.62-.001;game.waveClock=999;game.step(.015);
+    assert.equal(game.boss.active,true);assert.ok(events.some(e=>e.type==='bossStart'));
+    game.objects=[];game.waveClock=999;game.boss.runeClock=999;game.boss.attackClock=999;
+    for(let i=0;i<level.boss.hp;i++){
+      game.objects=[object('rune',game.x,PLAYER_Z-.001)];game.step(.03);
+      assert.equal(game.boss.hp,level.boss.hp-i-1);
+    }
+    assert.equal(game.boss.defeated,true);
+    assert.equal(events.filter(e=>e.type==='bossDefeated').length,1);
+    game.candies=level.goal;game.elapsed=game.duration-.01;game.step(.05);
+    assert.equal(game.won,true);
+  }
+});
+
+test('boss with remaining HP prevents victory at timeout, and boss projectile consumes shield',()=>{
+  const {game}=setup();game.configure({levelIndex:5});game.reset();game.start();
+  game.boss.active=true;game.boss.runeClock=999;game.boss.attackClock=999;game.waveClock=999;
+  game.shield=1;game.objects=[object('bossBolt')];game.step(.02);
+  assert.equal(game.shield,0);assert.equal(game.lives,game.maxLives);
+  game.objects=[];game.candies=game.goal;game.elapsed=game.duration-.01;game.step(.05);
+  assert.equal(game.won,false);assert.equal(game.mode,'over');
+});
+
+test('saved five-level campaign progress remains valid with expanded levels',()=>{
+  const old=readProgress(JSON.stringify({unlocked:5,results:{'arcade:5':{best:2500,stars:3}}}));
+  assert.equal(old.unlocked,5);assert.deepEqual(old.results['arcade:5'],{best:2500,stars:3});
+  recordResult(old,{levelIndex:4,difficulty:'arcade',score:2600,won:true,lives:3,maxLives:3});
+  assert.equal(old.unlocked,6);
 });
