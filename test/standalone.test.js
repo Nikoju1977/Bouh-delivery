@@ -11,6 +11,8 @@ test('standalone root index contains the whole playable game for static hosts',(
   assert.doesNotMatch(html,/<link[^>]+rel="stylesheet"/);
   assert.match(html,/Aylina/);
   assert.match(html,/koala\(0,-160/);
+  assert.match(html,/stars>0\)progress\.unlocked=Math\.max/);
+  assert.match(html,/savedCampaign!==JSON\.stringify\(progress\)/);
   assert.match(html,/10 niveaux\. 3 boss/);
   assert.doesNotMatch(html,/5 niveaux\. Des bonbons/);
   assert.match(html,/id="boss-levels"/);
