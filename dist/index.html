@@ -7,7 +7,7 @@
   <meta name="description" content="Dracula a faim. Son dentiste a un plan. Prends le volant du Bonbon Express et sauve Halloween dans ce jeu de course drôle et gratuit.">
   <title>BOUH! Delivery — La course aux bonbons</title>
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
-  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./style.css?v=11">
 </head>
 <body>
   <div class="page-glow" aria-hidden="true"></div>
@@ -26,7 +26,7 @@
   </header>
 
   <main>
-    <div class="game-heading"><span><i></i> SPÉCIAL HALLOWEEN</span><p>5 niveaux. Des bonbons. Zéro permis.</p><span class="edition">ÉDITION DU 31 OCTOBRE</span></div>
+    <div class="game-heading"><span><i></i> SPÉCIAL HALLOWEEN</span><p>10 niveaux. 3 boss. Zéro permis.</p><a class="boss-jump" href="#boss-levels">VOIR LES 3 BOSS ↓</a><span class="edition">ÉDITION DU 31 OCTOBRE</span></div>
     <div class="drive-settings" aria-label="Réglages de conduite">
       <span class="selected-mission" id="selected-mission">MISSION 01 / 10</span>
       <label for="difficulty">Difficulté <select id="difficulty"><option value="balade">Balade · 5 vies</option><option value="arcade" selected>Arcade · 3 vies</option></select></label>
@@ -74,7 +74,12 @@
     </section>
     <section class="level-select" aria-labelledby="levels-title">
       <div class="route-header"><span id="levels-title">LES DIX LIVRAISONS DE L’APOCALYPSE</span><span id="progress-label">1 / 10 DÉBLOQUÉ</span></div>
-      <div class="level-list" id="level-list"></div><p class="level-brief" id="level-brief"></p>
+      <div class="campaign-chapter-heading"><span>ACTE I · LE GRAND DÉPART</span><small>MISSIONS 01 À 05</small></div>
+      <div class="level-list" id="level-list" aria-label="Niveaux 1 à 5"></div>
+      <div class="campaign-chapter-heading campaign-chapter-boss" id="boss-levels"><span>ACTE II · LA NUIT DES BOSS</span><small>MISSIONS 06 À 10 · 3 BOSS</small></div>
+      <p class="boss-hint">Le Roi Citrouille, la Reine des Spectres et le Dr Brocoli mutant t’attendent. Termine les missions précédentes pour les affronter.</p>
+      <div class="level-list" id="boss-level-list" aria-label="Niveaux 6 à 10 et boss"></div>
+      <p class="level-brief" id="level-brief"></p>
       <p class="save-note">Progression et records enregistrés sur cet appareil. Gagne une livraison pour débloquer la suivante.</p>
     </section>
   </main>
@@ -84,6 +89,6 @@
     <div class="rules"><div><b>01</b><p><strong>Dix livraisons, trois boss.</strong>Atteins l’objectif de bonbons et survis jusqu’à l’arrivée. Dans les niveaux de boss, attrape les runes violettes pour vaincre ton ennemi avant minuit. La voiture avance toute seule.</p></div><div><b>02</b><p><strong>Conduis à ton rythme.</strong>3 vies en Arcade, 5 en Balade. Freine avec ↓ ou S. Ajuste la sensibilité au garage. Le klaxon fait fuir les fantômes proches ; les légumes n’ont pas d’oreilles.</p></div><div><b>03</b><p><strong>Turbo et petits coups de pouce.</strong>Espace ou ↑ pour accélérer. Le turbo vide attend 25 % de recharge. Un bouclier absorbe un choc ; un aimant attire les bonbons pendant 8 secondes. Garde tes vies pour gagner jusqu’à 3 étoiles.</p></div></div>
     <div class="help-keys"><span><kbd>←</kbd> <kbd>→</kbd> ou <kbd>Q</kbd> <kbd>D</kbd> : diriger</span><span><kbd>↓</kbd> : frein · <kbd>H</kbd> : klaxon · <kbd>P</kbd> / Échap : pause</span></div><p class="mobile-note">Sur téléphone : glisse le doigt sur la route ou utilise les flèches. Maintiens le turbo avec un second doigt. Les niveaux et records sont sauvegardés sur cet appareil.</p><button class="primary-button" id="help-ready">J’ai mon permis de hanter <span>→</span></button>
   </dialog>
-  <script type="module" src="./app.js"></script>
+  <script type="module" src="./app.js?v=11"></script>
 </body>
 </html>
