@@ -32,12 +32,17 @@ Puis ouvrir `http://localhost:8080`. Aucune installation de dépendances n’est
 | 3 | La fête foraine fantôme | 45 s | 20 |
 | 4 | Le potager du Dr Brocoli | 50 s | 24 |
 | 5 | Le bal de Dracula | 60 s | 30 |
+| 6 | Le marais des citrouilles — Roi Citrouille | 65 s | 32 |
+| 7 | La tour des treize coups | 70 s | 34 |
+| 8 | Le carnaval des spectres — Reine des Spectres | 75 s | 36 |
+| 9 | Les mines de sucre | 80 s | 38 |
+| 10 | Le laboratoire interdit — Dr Brocoli mutant | 85 s | 40 |
 
-Une victoire débloque le niveau suivant. Les étoiles, records, réglages et niveaux débloqués sont enregistrés dans le stockage local du navigateur, sur cet appareil. Les records sont séparés entre le mode Balade (5 vies) et le mode Arcade (3 vies).
+Les boss des niveaux 6, 8 et 10 arrivent dans la dernière partie du parcours : esquivez leurs projectiles rouges et récupérez trois runes violettes pour vider leur jauge de vie. Vous devez aussi avoir le nombre de bonbons demandé pour gagner. Une victoire débloque le niveau suivant. Les étoiles, records, réglages et niveaux débloqués sont enregistrés dans le stockage local du navigateur, sur cet appareil. Les records sont séparés entre le mode Balade (5 vies) et le mode Arcade (3 vies).
 
 ## Version 2
 
-Direction progressive avec sensibilité réglable, frein, collisions adaptées aux dimensions affichées, position de la voiture limitée à l’écran, turbo sans à-coups à vide, bouclier absorbant un choc, aimant à bonbons de 8 secondes, bonus de frôlement et combos. Cinq ambiances originales et bruitages synthétisés via Web Audio, sans ressource distante.
+Direction progressive avec sensibilité réglable, frein, collisions adaptées aux dimensions affichées, position de la voiture limitée à l’écran, turbo sans à-coups à vide, bouclier absorbant un choc, aimant à bonbons de 8 secondes, bonus de frôlement et combos. Dix ambiances colorées et bruitages synthétisés via Web Audio, sans ressource distante.
 
 ## Vérifier
 
