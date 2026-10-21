@@ -139,7 +139,7 @@ test('candy shots cannot collect pickups, destroy boss hazards or replace boss r
 
 test('shots follow firing lane and cannot clear obstacles on another lane',()=>{
   const {game}=setup();game.objects=[object('pumpkin',.66,.48)];
-  assert.equal(game.shoot(),true);run(game,.55);
+  assert.equal(game.shoot(),true);run(game,.7);
   assert.equal(game.targetsHit,0);
   assert.ok(game.objects.some(o=>o.type==='pumpkin'));
   assert.equal(game.projectiles.length,0);
