@@ -33,3 +33,13 @@
   .touch-controls button{min-height:46px}
   .game-shell.is-playing .level-pill{display:none}
 }
+
+/* Boss combat, responsive health bar and mission cards. */
+.boss-hud{position:absolute;z-index:3;top:31%;left:50%;transform:translateX(-50%);width:min(310px,calc(100% - 34px));padding:10px 13px;background:#1d0e30d9;border:1px solid #c788de91;border-radius:9px;text-align:center;box-shadow:0 10px 40px #11081b77;pointer-events:none}
+.boss-hud>span{display:block;font:bold 11px Arial,sans-serif;letter-spacing:1.3px;color:#f9c6de;margin-bottom:7px;text-shadow:0 2px 2px #000}
+.boss-health-track{height:10px;border-radius:8px;overflow:hidden;background:#392037;border:1px solid #a6789a}
+.boss-health-track i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#ef6d8e,#ffc382);transition:width .25s}
+.boss-hud small{display:block;margin-top:5px;font:9px monospace;color:#f5d6e1}
+.level-card:has(small:nth-child(3)){overflow:hidden}
+@media(max-width:580px){.boss-hud{top:34%;padding:8px 10px;width:min(260px,calc(100% - 40px))}.boss-hud>span{font-size:9px}.level-card:last-child{grid-column:auto;min-height:137px}}
+@media(orientation:landscape) and (max-height:520px){.boss-hud{top:35%;width:220px;padding:6px}.boss-hud>span{font-size:9px;margin-bottom:3px}}
