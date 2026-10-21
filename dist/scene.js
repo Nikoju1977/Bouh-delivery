@@ -41,6 +41,7 @@ export class Scene {
   }
   event(e) {
     if(e.type==='hit') this.shake=.5;
+    if(e.type==='bossHit') this.shake=.18;
     if(e.type==='candy') {
       const p=this.road(PLAYER_Z),x=p.x+this.game.x*p.half*.78;
       for(let i=0;i<10;i++)this.effects.push({x,y:p.y-30,vx:(Math.random()-.5)*160,vy:-80-Math.random()*130,life:.6,max:.6,color:i%2?'#ffd484':'#d2a9ff',size:2+Math.random()*3});
@@ -64,7 +65,7 @@ export class Scene {
     c.setTransform(this.dpr,0,0,this.dpr,0,0);c.clearRect(0,0,w,h);
     c.save();
     if(this.shake>0&&!this.reduced&&g.mode==='playing'){this.shake=Math.max(0,this.shake-dt);c.translate(Math.sin(this.time*100)*this.shake*8,Math.cos(this.time*120)*this.shake*5);}
-    this.sky();this.landscape();this.roadSurface();this.scenery();
+    this.sky();this.landscape();this.roadSurface();this.scenery();this.bossFigure();
     const objects=this.menu?[{type:'candy',x:-.65,z:.55,seed:0},{type:'candy',x:-.65,z:.65,seed:1},{type:'candy',x:.66,z:.32,seed:2},{type:'pumpkin',x:.68,z:.64,seed:3},{type:'ghost',x:-1.17,z:.79,seed:4}]:g.objects;
     let carDrawn=false;
     for(const o of [...objects].sort((a,b)=>a.z-b.z)){
@@ -77,6 +78,8 @@ export class Scene {
       else if(o.type==='pumpkin')this.pumpkin(0,0,scale*1.06,true);
       else if(o.type==='broccoli')this.broccoli(0,0,scale);
       else if(o.type==='shield'||o.type==='magnet')this.powerup(0,0,scale,o.type);
+      else if(o.type==='rune')this.bossRune(0,0,scale);
+      else if(o.type==='bossBolt')this.bossProjectile(0,0,scale);
       else this.ghost(0,-Math.sin(this.time*3+o.seed)*5,scale, false);
       c.restore();
     }
@@ -90,7 +93,7 @@ export class Scene {
   }
   sky(){
     const c=this.ctx,w=this.width,h=this.height,t=this.time,stage=this.game.stage;
-    const colors=stage===3?['#231345','#633451','#b86b79']:stage===4?['#132c30','#35594f','#8b9270']:stage===1?['#111c31','#34314f','#67516a']:stage===2?['#261337','#4d254b','#a25860']:['#1b1233','#3d2854','#866073'];
+    const colors=stage===5?['#162b23','#335841','#b38851']:stage===6?['#12243a','#3b365e','#856f9b']:stage===7?['#361532','#712f68','#e078a0']:stage===8?['#112d40','#21647a','#70a3c2']:stage===9?['#321021','#783440','#dd7852']:stage===3?['#231345','#633451','#b86b79']:stage===4?['#132c30','#35594f','#8b9270']:stage===1?['#111c31','#34314f','#67516a']:stage===2?['#261337','#4d254b','#a25860']:['#1b1233','#3d2854','#866073'];
     const sky=c.createLinearGradient(0,0,0,this.horizon+80);colors.forEach((x,i)=>sky.addColorStop(i/2,x));c.fillStyle=sky;c.fillRect(0,0,w,h);
     for(let i=0;i<100;i++){const x=noise(i)*w,y=noise(i+201)*this.horizon*.9,s=noise(i+5)> .9?1.7:.8;c.globalAlpha=.2+noise(i+3)*.5+(this.reduced?0:Math.sin(t*.5+i)*.12);this.ellipse(x,y,s,s,'#f8e0ce');if(i%19===0){c.fillStyle='#ead5d4';c.fillRect(x-4,y-.4,8,.8);c.fillRect(x-.4,y-4,.8,8);}}
     c.globalAlpha=1;
@@ -108,9 +111,11 @@ export class Scene {
       const points=[[0,hz+80]];for(let i=0;i<=60;i++){const x=w*i/60;points.push([x,hz-30+layer*21+Math.sin(i*.19+layer*2)*22+Math.sin(i*.42+layer)*10]);}points.push([w,hz+100]);this.path(points,['#3a2b4e','#30223f','#231c34'][layer]);
     }
     const castleX=w*(this.mobile?.75:.88),scale=Math.min(w/1200,.95)*(this.mobile?1.8:1);
-    if(this.game.stage===0||this.game.stage===2)this.castle(castleX,hz+14,scale*(this.game.stage===2?1.35:1));
-    if(this.game.stage===3)this.fairground(w*.77,hz+22,Math.min(w/850,.9));
-    if(this.game.stage===4)for(let i=0;i<7;i++)this.broccoli(w*(.1+i*.14),hz+23,scale*.7);
+    if([0,2,6,9].includes(this.game.stage))this.castle(castleX,hz+14,scale*([2,9].includes(this.game.stage)?1.35:1));
+    if(this.game.stage===5)for(let i=0;i<7;i++)this.pumpkin(w*(.06+i*.15),hz+26,scale*.55,false);
+    if(this.game.stage===8)for(let i=0;i<9;i++)this.path([[w*i/8,hz+18],[w*i/8-18,hz-30],[w*i/8+16,hz-65],[w*i/8+38,hz+12]],i%2?'#72baca':'#8cc4d5');
+    if(this.game.stage===3||this.game.stage===7)this.fairground(w*.77,hz+22,Math.min(w/850,.9));
+    if(this.game.stage===4||this.game.stage===9)for(let i=0;i<7;i++)this.broccoli(w*(.1+i*.14),hz+23,scale*.7);
     for(let i=0;i<17;i++){const x=noise(i+840)*w,y=hz+10+noise(i+20)*20;this.tree(x,y,.26+noise(i+830)*.29,'#201b31',i);}
     for(let i=0;i<11;i++){const x=noise(i+420)*w,y=hz+30+noise(i+30)*15;this.grave(x,y,.26+noise(i+490)*.3,i);}
     const ground=c.createLinearGradient(0,hz,0,this.height);ground.addColorStop(0,'#29203c');ground.addColorStop(1,this.game.stage===1?'#171c2c':'#24192c');c.fillStyle=ground;c.fillRect(0,hz+40,w,this.height-hz);
@@ -233,6 +238,35 @@ export class Scene {
     this.path([[-24,-43],[1,-76],[23,-43]],'#37243e','#ed9b65',2);
     this.path([[-31,-44],[-4,-49],[29,-44],[13,-37],[-15,-38]],'#673a65','#f1ab72',1.5);
     this.ellipse(14,-52,3.5,3.5,'#ffba71');
+    c.restore();
+  }
+  bossFigure(){
+    const boss=this.game.boss;
+    if(!boss||boss.defeated||(!boss.active&&!this.menu))return;
+    const c=this.ctx,p=this.road(.16),s=Math.min(this.width/360,1.8)*(this.mobile?.75:1);
+    c.save();c.translate(p.x,this.horizon+33);c.scale(s,s);
+    this.glow(0,-62,112,boss.kind==='broccoli'?'#95fa6d2a':boss.kind==='ghost'?'#d99fff2a':'#ff7a452c');
+    if(boss.kind==='pumpkin')this.pumpkin(0,0,1.8,true);
+    else if(boss.kind==='ghost')this.ghost(0,-34,2.1,false);
+    else this.broccoli(0,0,2);
+    this.path([[-45,-114],[-36,-152],[-18,-130],[0,-166],[18,-130],[36,-152],[45,-114]],'#e6ae60','#fbe2a0',3);
+    this.ellipse(0,-166,6,6,'#fff1b1');
+    c.restore();
+  }
+  bossRune(x,y,s){
+    const c=this.ctx;c.save();c.translate(x,y-33*s);c.scale(s,s);
+    this.glow(0,0,70,'#cba7ff66');c.rotate(this.time*1.9);
+    this.path([[0,-31],[24,0],[0,31],[-24,0]],'#d9a5ff','#fff6dc',3);
+    this.path([[0,-19],[13,0],[0,19],[-13,0]],'#faf2c7');
+    c.restore();
+  }
+  bossProjectile(x,y,s){
+    const c=this.ctx;c.save();c.translate(x,y-19*s);c.scale(s,s);
+    this.glow(0,0,47,'#ff534a66');
+    this.ellipse(0,0,24,24,'#9e2850');
+    this.ellipse(-7,-8,5,5,'#fce4ac');this.ellipse(8,-8,5,5,'#fce4ac');
+    this.path([[-13,7],[0,15],[14,7]],'#261020');
+    for(let i=0;i<4;i++)this.path([[Math.cos(i*1.57)*20,Math.sin(i*1.57)*20],[Math.cos(i*1.57)*32,Math.sin(i*1.57)*32],[Math.cos(i*1.57+.4)*20,Math.sin(i*1.57+.4)*20]],'#e15c64');
     c.restore();
   }
   vehicle(){

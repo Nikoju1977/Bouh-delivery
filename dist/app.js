@@ -36,19 +36,19 @@ function renderLevels(){
     const button=document.createElement('button');button.type='button';button.className='level-card';button.classList.toggle('selected',index===game.levelIndex);button.classList.toggle('locked',locked);button.disabled=locked||isDriving();button.setAttribute('aria-pressed',String(index===game.levelIndex));
     const number=document.createElement('span');number.className='level-card-number';number.textContent=`${String(level.id).padStart(2,'0')} · ${locked?'VERROUILLÉ':level.icon}`;
     const title=document.createElement('strong');title.textContent=level.name;
-    const target=document.createElement('small');target.textContent=`${level.duration} s · ${level.goal} bonbons`;
+    const target=document.createElement('small');target.textContent=`${level.duration} s · ${level.goal} bonbons${level.boss?' · BOSS':''}`;
     const stars=document.createElement('span');stars.className='level-stars';stars.textContent='★'.repeat(record.stars)+'☆'.repeat(3-record.stars);stars.setAttribute('aria-label',`${record.stars} étoiles sur 3`);
     button.append(number,title,target,stars);button.addEventListener('click',()=>home(index));$('level-list').append(button);
   }
-  $('progress-label').textContent=`${progress.unlocked} / 5 DÉBLOQUÉ${progress.unlocked>1?'S':''}`;
+  $('progress-label').textContent=`${progress.unlocked} / ${LEVELS.length} DÉBLOQUÉ${progress.unlocked>1?'S':''}`;
   $('level-brief').textContent=game.level.brief;$('difficulty').disabled=isDriving();
 }
 function updateMenu(){
-  $('selected-mission').textContent=`MISSION ${String(game.level.id).padStart(2,'0')} / 05`;
+  $('selected-mission').textContent=`MISSION ${String(game.level.id).padStart(2,'0')} / ${String(LEVELS.length).padStart(2,'0')}`;
   $('intro-mode').textContent=MODES[game.difficulty].label.toUpperCase();$('intro-level').textContent=`${String(game.level.id).padStart(2,'0')} · ${game.level.name.toUpperCase()}`;
   $('intro-duration').textContent=game.duration;$('intro-goal').textContent=game.goal;$('intro-lives').textContent=game.maxLives;
   $('mission-title').textContent=game.level.name+' · '+game.level.subtitle;
-  $('mission-description').textContent=`${game.goal} bonbons, ${game.duration} secondes. Et un corbillard de fonction.`;
+  $('mission-description').textContent=`${game.goal} bonbons, ${game.duration} secondes.${game.level.boss?' Boss : '+game.level.boss.name+'.':' Et un corbillard de fonction.'}`;
   $('footer-best').textContent=String(currentRecord().best).padStart(4,'0');updateStage();renderLevels();
 }
 function clearInput(){keys.clear();touchPointers.clear();drag=null;document.querySelectorAll('.touch-controls button').forEach(b=>b.classList.remove('held'));}
@@ -56,7 +56,7 @@ function start(){
   audio.init();game.reset();game.start();scene.effects=[];scene.shake=0;clearInput();
   countdownRemaining=2.7;lastCountdown=-1;radioRemaining=0;lastRadio=-1;toastRemaining=0;
   for(const id of ['intro','corner-label','scene-caption','canvas-footer','result-overlay','pause-overlay','radio'])$(id).hidden=true;
-  for(const id of ['hud','play-bottom','touch-controls','touch-tip','countdown','powerup-status'])$(id).hidden=false;
+  for(const id of ['hud','play-bottom','touch-controls','touch-tip','countdown','powerup-status'])$(id).hidden=false; $('boss-hud').hidden=true;
   $('radio').classList.remove('visible');$('toast').classList.remove('visible');$('countdown-number').textContent='3';$('pause-button').setAttribute('aria-label','Mettre en pause');
   $('game-shell').classList.add('is-playing');updateMenu();updateHud();
   $('game-shell').scrollIntoView({block:'start',behavior:'instant'});$('pause-button').focus({preventScroll:true});
@@ -67,17 +67,18 @@ function home(index=game.levelIndex){
   if(!Number.isInteger(index)||index<0||index>=progress.unlocked)return;
   game.configure({levelIndex:index});game.reset();game.mode='menu';clearInput();countdownRemaining=0;radioRemaining=0;scene.effects=[];
   for(const id of ['intro','corner-label','scene-caption','canvas-footer'])$(id).hidden=false;
-  for(const id of ['result-overlay','pause-overlay','hud','play-bottom','touch-controls','touch-tip','radio','countdown','powerup-status'])$(id).hidden=true;
+  for(const id of ['result-overlay','pause-overlay','hud','play-bottom','touch-controls','touch-tip','radio','countdown','powerup-status','boss-hud'])$(id).hidden=true;
   $('toast').classList.remove('visible');$('game-shell').classList.remove('is-playing');updateMenu();$('start-button').focus({preventScroll:true});
 }
 function finish(event){
-  clearInput();radioRemaining=0;toastRemaining=0;for(const id of ['radio','touch-controls','touch-tip','powerup-status'])$(id).hidden=true;$('toast').classList.remove('visible');
+  clearInput();radioRemaining=0;toastRemaining=0;for(const id of ['radio','touch-controls','touch-tip','powerup-status','boss-hud'])$(id).hidden=true;$('toast').classList.remove('visible');
   const score=Math.floor(game.score),record=recordResult(progress,{levelIndex:game.levelIndex,difficulty:game.difficulty,score,won:event.won,lives:game.lives,maxLives:game.maxLives});storage.set('bouh-campaign-v2',JSON.stringify(progress));
   $('footer-best').textContent=String(record.best).padStart(4,'0');$('result-icon').textContent=event.won?'✦':'☠';
   $('result-eyebrow').textContent=event.won?(record.newRecord?'LIVRAISON RÉUSSIE · NOUVEAU RECORD':'LIVRAISON RÉUSSIE'):'LE SERVICE APRÈS-MORT VOUS ÉCOUTE';
   const title=$('result-title'),em=document.createElement('em');title.replaceChildren();
-  if(event.won){title.append(game.levelIndex===4?'La dent sucrée.':'Livraison arrivée.',document.createElement('br'));em.textContent=['Pas enterrée.','On respire. Enfin…','Quel cirque !','Brocoli neutralisé.','Et pointue.'][game.levelIndex];$('result-story').textContent=game.level.ending;audio.effect('win');}
+  if(event.won){title.append(game.levelIndex===4?'La dent sucrée.':'Livraison arrivée.',document.createElement('br'));em.textContent=['Pas enterrée.','On respire. Enfin…','Quel cirque !','Brocoli neutralisé.','Et pointue.'][game.levelIndex]||(game.level.boss?'Boss terrassé !':'Et le koala applaudit.');$('result-story').textContent=game.level.ending;audio.effect('win');}
   else if(event.reason==='lives'){title.append('Un peu trop',document.createElement('br'));em.textContent='mort de rire.';$('result-story').textContent='Le corbillard a rendu l’âme. Une deuxième fois. Essaie le frein ou le mode Balade : même les fantômes ont commencé avec un A.';audio.effect('lose');}
+  else if(event.reason==='boss'){title.append('Encore debout ?',document.createElement('br'));em.textContent='Le boss aussi.';$('result-story').textContent='Ramasse les runes violettes pour vider la jauge du boss avant minuit. Esquive ses boules rouges !';audio.effect('lose');}
   else{title.append('Minuit. Oups.',document.createElement('br'));em.textContent='Ça sent le brocoli.';$('result-story').textContent=`${game.candies} bonbon${game.candies>1?'s':''} sur ${game.goal}… Dracula fait semblant d’aimer les crudités. Personne n’y croit. Une petite dose de turbo peut aider !`;audio.effect('lose');}
   title.append(em);$('earned-stars').textContent='★'.repeat(record.earnedStars)+'☆'.repeat(3-record.earnedStars);$('earned-stars').setAttribute('aria-label',`${record.earnedStars} étoiles gagnées sur 3`);
   $('result-candies').textContent=game.candies;$('result-score').textContent=score.toLocaleString('fr-FR');$('result-best').textContent=record.best.toLocaleString('fr-FR');
@@ -92,6 +93,9 @@ function handleEvent(e){
   if(e.type==='powerup'){audio.effect('go');showToast(e.powerup==='shield'?'ASSURANCE TOUS FANTÔMES !':'AIMANT À CARIES · 8 S');}
   if(e.type==='shield'){audio.effect('honk');showToast('LE BOUCLIER A TOUT PRIS !');}
   if(e.type==='nearMiss')showToast('ÇA PASSE ! +50',1);
+  if(e.type==='bossStart'){showToast('ATTENTION · '+e.name,2.5);say('ALERTE DU GPS POSSÉDÉ','Boss devant ! Attrape les runes violettes pour le vaincre.',4);}
+  if(e.type==='bossHit'){audio.effect('candy');showToast('BOSS TOUCHÉ · '+e.hp+' PV',1.5);}
+  if(e.type==='bossDefeated'){audio.effect('win');showToast('BOSS VAINCU !',2.8);}
   if(e.type==='finish')finish(e);
 }
 function updateHud(){
@@ -101,6 +105,9 @@ function updateHud(){
   $('score-value').textContent=Math.floor(game.score).toLocaleString('fr-FR');$('turbo-fill').style.width=game.fuel+'%';$('turbo-label').textContent=game.braking?'FREIN':game.boosting?'WOUHOU !':game.boostLocked?'RECHARGE':'ESPACE';$('speed-value').textContent=game.speed;
   $('honk-status').classList.toggle('cooling',game.honkCooldown>0);$('honk-status').querySelector('span').textContent=game.honkCooldown>0?`${Math.ceil(game.honkCooldown)} S`:'POUËT !';
   const badges=[];if(game.shield)badges.push('⬡ BOUCLIER');if(game.magnet>0)badges.push(`✦ AIMANT ${Math.ceil(game.magnet)} S`);if(game.combo>=4)badges.push(`COMBO ×${game.combo}`);
+  const b=game.boss,bossVisible=b?.active&&!b.defeated&&(game.mode==='playing'||game.mode==='paused');
+  $('boss-hud').hidden=!bossVisible;
+  if(bossVisible){$('boss-name').textContent=b.name;$('boss-health').style.width=(100*b.hp/game.level.boss.hp)+'%';$('boss-health-text').textContent=b.hp+' / '+game.level.boss.hp+' PV';}
   const label=badges.join('   ·   ');if($('powerup-status').textContent!==label)$('powerup-status').textContent=label;
 }
 function input(){
