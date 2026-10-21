@@ -43,3 +43,18 @@
 .level-card:has(small:nth-child(3)){overflow:hidden}
 @media(max-width:580px){.boss-hud{top:34%;padding:8px 10px;width:min(260px,calc(100% - 40px))}.boss-hud>span{font-size:9px}.level-card:last-child{grid-column:auto;min-height:137px}}
 @media(orientation:landscape) and (max-height:520px){.boss-hud{top:35%;width:220px;padding:6px}.boss-hud>span{font-size:9px;margin-bottom:3px}}
+
+/* Ten-level campaign: two explicit chapters instead of a deceptively short list. */
+.game-heading .boss-jump{color:#ffd1b2;border:1px solid #ff87457a;background:#39203487;padding:9px 13px;border-radius:999px;text-decoration:none;font:700 10px Arial,sans-serif;letter-spacing:.5px;white-space:nowrap}
+.game-heading .boss-jump:hover,.game-heading .boss-jump:focus-visible{background:#5d2c42;color:#fff8ed}
+.campaign-chapter-heading{display:flex;justify-content:space-between;gap:14px;align-items:center;margin:22px 0 14px;padding:11px 14px;border-radius:6px;background:#231b32;border-left:3px solid #ffb16d}
+.campaign-chapter-heading span{font:700 12px Arial,sans-serif;letter-spacing:.8px;color:#ffe2c8}
+.campaign-chapter-heading small{font:9px monospace;letter-spacing:1px;color:#d5bddc;white-space:nowrap}
+.campaign-chapter-boss{margin-top:29px;background:linear-gradient(90deg,#442135,#261a3e);border-color:#da80c2;scroll-margin-top:18px}
+.campaign-chapter-boss span{color:#ffd5eb}
+.boss-hint{font:11px/1.6 Arial,sans-serif;color:#bdb0d3;margin:0 0 14px}
+.boss-mission{border-color:#7b476d;background:#25152e}
+.boss-mission .level-card-number{color:#f2a6d4}
+.boss-mission small{line-height:1.5}
+@media(max-width:800px){.game-heading .boss-jump{font-size:9px;padding:8px 10px}}
+@media(max-width:580px){.game-heading .boss-jump{font-size:8px;padding:8px 9px}.campaign-chapter-heading{padding:10px;margin-top:20px;align-items:flex-start}.campaign-chapter-heading span{font-size:10px}.campaign-chapter-heading small{font-size:8px;white-space:normal;text-align:right}.boss-hint{font-size:10px}}
