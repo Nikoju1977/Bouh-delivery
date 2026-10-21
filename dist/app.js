@@ -142,7 +142,7 @@ canvas.addEventListener('pointerdown',event=>{if(game.mode!=='playing'||drag||ev
 canvas.addEventListener('pointermove',event=>{if(drag?.id!==event.pointerId)return;drag.target=dragTarget(drag.start,drag.client,event.clientX,scene.metrics.playerUnit,game.maxX);});
 for(const type of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(type,event=>{if(drag?.id===event.pointerId)drag=null;});
 canvas.addEventListener('contextmenu',event=>{if(isDriving())event.preventDefault();});
-let previous=performance.now(),hudClock=0;
+let previous=performance.now(),hudClock=0,paintClock=0;
 function frame(now){
   const dt=clamp((now-previous)/1000,0,.25);previous=now;
   if(game.mode==='playing'){
@@ -158,6 +158,12 @@ function frame(now){
     if(radioRemaining>0){radioRemaining-=dt;if(radioRemaining<=0)$('radio').classList.remove('visible');}
   }
   hudClock+=dt;if(hudClock>.08){if(game.mode!=='menu')updateHud();hudClock=0;}
-  scene.frame(Math.min(dt,.05));audio.update(game,dt,game.mode==='playing'&&countdownRemaining<=0);requestAnimationFrame(frame);
+  // Avoid 120-Hz duplicate paints and reduce battery drain on menus / pause.
+  paintClock+=dt;
+  if(paintClock >= (game.mode==='playing'?1/70:1/28)){
+    scene.frame(Math.min(paintClock,.05));
+    paintClock=0;
+  }
+  audio.update(game,dt,game.mode==='playing'&&countdownRemaining<=0);requestAnimationFrame(frame);
 }
 updateSound();updateMenu();requestAnimationFrame(frame);
