@@ -6,7 +6,7 @@ export class Game {
   constructor({random=Math.random,onEvent=()=>{}}={}){this.random=random;this.onEvent=onEvent;this.difficulty='arcade';this.sensitivity=1;this.levelIndex=0;this.maxX=1.08;this.hitRadius=0.23;this.reset();this.mode='menu';}
   get level(){return LEVELS[this.levelIndex];} get goal(){return this.level.goal;} get duration(){return this.level.duration;}
   configure({difficulty,sensitivity,maxX,hitRadius,levelIndex}={}){if(MODES[difficulty])this.difficulty=difficulty;if(Number.isInteger(levelIndex))this.levelIndex=clamp(levelIndex,0,LEVELS.length-1);if(Number.isFinite(sensitivity))this.sensitivity=clamp(sensitivity,0.65,1.4);if(Number.isFinite(maxX))this.maxX=clamp(maxX,0.75,1.08);if(Number.isFinite(hitRadius))this.hitRadius=clamp(hitRadius,0.1,0.38);this.x=clamp(this.x||0,-this.maxX,this.maxX);}
-  reset(){this.elapsed=0;this.distance=0;this.x=0;this.steer=0;this.vx=0;this.candies=0;this.lives=MODES[this.difficulty].lives;this.maxLives=this.lives;this.score=0;this.combo=0;this.bestCombo=0;this.comboClock=0;this.fuel=100;this.boosting=false;this.boostLocked=false;this.braking=false;this.slow=0;this.invulnerable=0;this.honkCooldown=0;this.honkWave=0;this.shield=0;this.magnet=0;this.nextPowerup=6;this.powerupCount=0;this.objects=[];this.waveClock=0.4;this.stage=this.level.scene;this.lastCandyLane=1;this.hitCount=0;this.ghostsScared=0;this.nearMisses=0;this.id=0;this.speed=Math.round(88*this.level.pace*MODES[this.difficulty].pace);this.mode='ready';this.won=false;this.boss=this.level.boss?{...this.level.boss,hp:this.level.boss.hp,active:false,defeated:false,runeClock:0,attackClock:1.6,shots:0,attacks:0}:null;}
+  reset(){this.elapsed=0;this.distance=0;this.x=0;this.steer=0;this.vx=0;this.candies=0;this.lives=MODES[this.difficulty].lives;this.maxLives=this.lives;this.score=0;this.combo=0;this.bestCombo=0;this.comboClock=0;this.fuel=100;this.boosting=false;this.boostLocked=false;this.braking=false;this.slow=0;this.invulnerable=0;this.honkCooldown=0;this.honkWave=0;this.shotCooldown=0;this.projectiles=[];this.shotsFired=0;this.targetsHit=0;this.shield=0;this.magnet=0;this.nextPowerup=6;this.powerupCount=0;this.objects=[];this.waveClock=0.4;this.stage=this.level.scene;this.lastCandyLane=1;this.hitCount=0;this.ghostsScared=0;this.nearMisses=0;this.id=0;this.speed=Math.round(88*this.level.pace*MODES[this.difficulty].pace);this.mode='ready';this.won=false;this.boss=this.level.boss?{...this.level.boss,hp:this.level.boss.hp,active:false,defeated:false,runeClock:0,attackClock:1.6,shots:0,attacks:0}:null;}
   start(){this.mode='playing';} pause(){if(this.mode==='playing'){this.mode='paused';this.boosting=false;this.braking=false;this.vx=0;this.steer=0;}} resume(){if(this.mode==='paused')this.mode='playing';} emit(type,detail={}){this.onEvent({type,...detail});}
   spawnWave(){
     const choices=[0,1,2].filter(lane=>Math.abs(lane-this.lastCandyLane)<=1),candyLane=choices[Math.floor(this.random()*choices.length)];this.lastCandyLane=candyLane;const obstacleLane=(candyLane+1+Math.floor(this.random()*2))%3;
@@ -15,6 +15,14 @@ export class Game {
     if(this.elapsed>=this.nextPowerup){this.objects.push({id:++this.id,type:this.powerupCount%2===0?'shield':'magnet',x:LANES[candyLane],z:-0.22,seed:0});this.powerupCount++;this.nextPowerup+=10;}
   }
   honk(){if(this.mode!=='playing'||this.honkCooldown>0)return false;this.honkCooldown=3.5;this.honkWave=0.65;let count=0;for(const o of this.objects)if(o.type==='ghost'&&o.z>0.38&&!o.fleeing&&!o.done){o.fleeing=true;o.fleeDir=o.x>=this.x?1:-1;count++;this.ghostsScared++;this.score+=75;}this.emit('honk',{count});return true;}
+  shoot(){
+    if(this.mode!=='playing'||this.shotCooldown>0)return false;
+    this.shotCooldown=.5;
+    this.shotsFired++;
+    this.projectiles.push({id:++this.id,x:this.x,z:PLAYER_Z-.085});
+    this.emit('shoot',{x:this.x});
+    return true;
+  }
   finish(won,reason){if(this.mode==='over')return;this.mode='over';this.won=won;this.boosting=false;this.braking=false;this.vx=0;if(won)this.score+=this.lives*500;this.emit('finish',{won,reason});}
   move(dt,input){
     const maxSpeed=2.2*this.sensitivity,axis=clamp(Number.isFinite(input.axis)?input.axis:0,-1,1),targetX=Number.isFinite(input.targetX)?clamp(input.targetX,-this.maxX,this.maxX):null;
@@ -25,8 +33,8 @@ export class Game {
   }
   step(dt,input={}){if(this.mode!=='playing'||!Number.isFinite(dt)||dt<=0)return;let remaining=Math.min(dt,0.25);while(remaining>1e-9&&this.mode==='playing'){const slice=Math.min(remaining,1/120);this.advance(slice,input);remaining-=slice;}}
   advance(dt,input){
-    this.elapsed=Math.min(this.duration,this.elapsed+dt);for(const key of ['invulnerable','slow','honkCooldown','honkWave','magnet','comboClock'])this[key]=Math.max(0,this[key]-dt);if(this.comboClock===0)this.combo=0;
-    this.move(dt,input);this.braking=!!input.brake;if(this.fuel>=25)this.boostLocked=false;this.boosting=!!input.boost&&!this.braking&&!this.boostLocked&&this.fuel>0&&this.slow<=0;this.fuel=clamp(this.fuel+dt*(this.boosting?-32:14),0,100);if(this.fuel===0){this.boostLocked=true;this.boosting=false;}
+    this.elapsed=Math.min(this.duration,this.elapsed+dt);for(const key of ['invulnerable','slow','honkCooldown','honkWave','shotCooldown','magnet','comboClock'])this[key]=Math.max(0,this[key]-dt);if(this.comboClock===0)this.combo=0;
+    this.move(dt,input);if(input.shoot)this.shoot();this.braking=!!input.brake;if(this.fuel>=25)this.boostLocked=false;this.boosting=!!input.boost&&!this.braking&&!this.boostLocked&&this.fuel>0&&this.slow<=0;this.fuel=clamp(this.fuel+dt*(this.boosting?-32:14),0,100);if(this.fuel===0){this.boostLocked=true;this.boosting=false;}
     const multiplier=(this.boosting?1.6:this.braking?0.66:1)*(Math.abs(this.x)>0.98?0.76:1)*(this.slow>0?0.55:1)*MODES[this.difficulty].pace*this.level.pace;this.speed=Math.round(88*multiplier);const velocity=0.265*multiplier;this.distance+=velocity*dt;this.score+=dt*(this.boosting?20:10);this.waveClock-=dt*multiplier;if(this.waveClock<=0){this.spawnWave();this.waveClock+=this.level.wave;}
     // Bosses appear in the final 38% of their missions. Every weak point is a
     // visible rune pickup; hazards use the same fair collision rules as traffic.
@@ -70,6 +78,21 @@ export class Game {
         }else if(!collectible&&!o.fleeing&&gap<this.hitRadius+0.12&&this.invulnerable<=0){this.nearMisses++;this.score+=50;this.emit('nearMiss');}
       }
     }
+    // Candy shots travel up the road, and only clear ordinary traffic hazards.
+    // They cannot collect candies, destroy boss projectiles, or hurt bosses:
+    // defeating a boss still requires the three purple runes.
+    for(const shot of this.projectiles){
+      const previousZ=shot.z;shot.z-=dt*1.28;
+      for(const o of this.objects){
+        if(o.done||o.collected||o.fleeing||!['ghost','pumpkin','broccoli'].includes(o.type))continue;
+        if(o.z>=PLAYER_Z||Math.abs(o.x-shot.x)>.27)continue;
+        if(o.z>=shot.z-.045&&o.z<=previousZ+.045){
+          shot.hit=true;o.collected=true;this.targetsHit++;this.score+=150;
+          this.emit('targetHit',{target:o.type,x:o.x,z:o.z});break;
+        }
+      }
+    }
+    this.projectiles=this.projectiles.filter(p=>!p.hit&&p.z>.025);
     this.objects=this.objects.filter(o=>o.z<1.25&&!o.collected&&Math.abs(o.x)<3.5);if(this.elapsed>=this.duration){
       const candyOK=this.candies>=this.goal,bossOK=!this.boss||this.boss.defeated;
       this.finish(candyOK&&bossOK,!candyOK?'candies':!bossOK?'boss':'delivered');
