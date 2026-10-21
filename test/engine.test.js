@@ -31,13 +31,13 @@ test('Balade gives five lives and a slower pace',()=>{const a=setup().game,b=set
 test('long rendering frames preserve elapsed time and collision detection',()=>{const {game}=setup();game.objects=[object('pumpkin',0,PLAYER_Z-.02)];game.step(.25);assert.ok(Math.abs(game.elapsed-.25)<1e-9);assert.equal(game.lives,2);});
 test('car bounds and collision radius match mobile and desktop geometry',()=>{for(const [w,h]of[[320,440],[375,590],[768,590],[1280,709]]){const m=viewMetrics(w,h);assert.ok(m.maxX*m.playerUnit+70*m.carScale<=w/2-10);const visible=52*m.carScale+26*m.objectScale*PLAYER_Z;assert.ok(m.hitRadius*m.playerUnit>=visible*.8);assert.ok(m.hitRadius*m.playerUnit<=visible);}});
 test('only wins unlock the next level; records are separate and never decrease',()=>{const p=freshProgress(),result={levelIndex:0,difficulty:'arcade',score:100,won:false,lives:0,maxLives:3};recordResult(p,result);assert.equal(p.unlocked,1);let r=recordResult(p,{...result,won:true,score:1000,lives:3});assert.equal(p.unlocked,2);assert.equal(r.earnedStars,3);r=recordResult(p,{...result,won:true,score:500,lives:1});assert.equal(r.best,1000);assert.equal(r.stars,3);assert.equal(r.earnedStars,1);recordResult(p,{...result,difficulty:'balade',score:2000});assert.equal(p.results['arcade:1'].best,1000);assert.equal(p.results['balade:1'].best,2000);assert.deepEqual(readProgress(JSON.stringify(p)),p);});
-test('invalid saved progress falls back safely and clamps values',()=>{for(const value of['broken','null','[]'])assert.deepEqual(readProgress(value),freshProgress());const p=readProgress('{"unlocked":99,"results":{"arcade:1":{"best":-40,"stars":20}}}');assert.equal(p.unlocked,5);assert.deepEqual(p.results['arcade:1'],{best:0,stars:3});});
-test('all campaign levels have reachable candy paths in both modes, over 120 runs',()=>{
+test('invalid saved progress falls back safely and clamps values',()=>{for(const value of['broken','null','[]'])assert.deepEqual(readProgress(value),freshProgress());const p=readProgress('{"unlocked":99,"results":{"arcade:1":{"best":-40,"stars":20}}}');assert.equal(p.unlocked,LEVELS.length);assert.deepEqual(p.results['arcade:1'],{best:0,stars:3});});
+test('all campaign levels have reachable candy paths in both modes, over 240 runs',()=>{
   for(const difficulty of ['balade','arcade'])for(const [levelIndex,level]of LEVELS.entries()){
     let wins=0;
     for(let seed=1;seed<=12;seed++){
       let state=seed;const random=()=>{state=(Math.imul(1664525,state)+1013904223)>>>0;return state/4294967296;};const game=new Game({random});game.configure({...viewMetrics(375,590),difficulty,levelIndex});game.reset();game.start();
-      for(let i=0;i<8000&&game.mode==='playing';i++){
+      for(let i=0;i<16000&&game.mode==='playing';i++){
         const candy=game.objects.filter(o=>o.type==='candy'&&!o.done&&o.z>0).sort((a,b)=>b.z-a.z)[0];
         const rune=game.boss?.active&&!game.boss.defeated?game.objects.filter(o=>o.type==='rune'&&!o.done&&o.z>0).sort((a,b)=>b.z-a.z)[0]:null;
         const target=rune||candy;
