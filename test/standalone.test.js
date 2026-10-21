@@ -1,0 +1,17 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {Script} from 'node:vm';
+
+test('standalone root index contains the whole playable game for static hosts',()=>{
+  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
+  assert.match(html,/<style>[\s\S]*<\/style>/);
+  assert.match(html,/<script>[\s\S]*<\/script>/);
+  assert.doesNotMatch(html,/<script[^>]+src=/);
+  assert.doesNotMatch(html,/<link[^>]+rel="stylesheet"/);
+  assert.match(html,/Aylina/);
+  assert.match(html,/koala\(0,-160/);
+  const code=html.match(/<script>([\s\S]*?)<\/script>/)?.[1];
+  assert.ok(code);
+  new Script(code,{filename:'index.html'});
+});

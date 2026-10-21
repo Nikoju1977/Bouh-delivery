@@ -12,3 +12,24 @@
 @media(max-width:900px){.level-list{grid-template-columns:repeat(3,minmax(0,1fr))}.level-card{min-height:140px}.mission-note{max-width:100%}.keyboard-guide{display:none}}
 @media(pointer:coarse){.touch-tip:not([hidden]){display:block}}
 @media(max-width:580px){.drive-settings{gap:10px 12px;margin-bottom:13px}.selected-mission{width:100%}.drive-settings label{gap:6px;font-size:9px}.drive-settings select{font-size:9px;padding:7px}.drive-settings input{width:68px}.drive-settings output{font-size:8px;min-width:30px}.level-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.level-card:last-child{grid-column:1/-1;min-height:112px}.level-card{min-height:137px;padding:13px}.level-card strong{font-size:11px}.level-card-number{font-size:7px}.level-select .route-header{gap:14px;line-height:1.6}.level-select .route-header>span:last-child{display:block;white-space:nowrap;font-size:7px}.level-brief{font-size:11px}.game-shell.is-playing{height:clamp(430px,calc(100svh - 145px),620px)}.game-shell.is-playing:has(.screen-overlay:not([hidden])){min-height:540px}.powerup-status{top:137px;left:15px;max-width:calc(100% - 30px);font-size:8px}.radio{top:176px}.game-shell.is-playing .level-pill{top:101px;bottom:auto;padding:7px 11px}.game-shell.is-playing .level-pill small{display:none}.result-card:has(#next-level-button:not([hidden])) h2{font-size:37px}.result-card .eyebrow{font-size:7px;letter-spacing:1px;margin-bottom:13px}.result-card p{font-size:11px}.result-card .primary-button{min-width:240px;margin-top:15px;padding:13px 17px}.result-stats{margin:18px 0}.earned-stars{font-size:22px;margin-top:11px}.touch-controls{gap:6px}.touch-controls button{min-width:44px}.touch-controls .touch-boost{min-width:65px}.touch-controls .touch-brake,.touch-controls .touch-honk{min-width:44px;font-size:8px;padding:0 6px}.touch-tip:not([hidden]){display:block}.lives{font-size:15px;letter-spacing:0}.intro .eyebrow{gap:7px}.intro .eyebrow .mission-title{font-size:7px;max-width:190px}.game-shell{scroll-margin-top:10px}}
+
+
+/* Mobile touch targets, safe areas, and gesture stability. */
+@media(pointer:coarse){
+  .game-shell.is-playing{overscroll-behavior:contain}
+  .touch-controls:not([hidden]){padding-left:max(8px,env(safe-area-inset-left));padding-right:max(8px,env(safe-area-inset-right))}
+  .touch-controls button{min-height:54px;touch-action:none;-webkit-user-select:none;user-select:none}
+  .pause-button{min-width:44px;min-height:44px;touch-action:manipulation}
+  .touch-tip{padding-left:4px;padding-right:4px}
+}
+@media(max-width:360px){
+  .touch-controls>div{gap:4px}
+  .touch-controls button{min-width:42px}
+  .touch-controls .touch-boost{min-width:60px}
+}
+@media(orientation:landscape) and (max-height:520px){
+  .game-shell.is-playing{height:max(300px,calc(100svh - 108px))}
+  .touch-controls:not([hidden]){padding-top:5px;padding-bottom:max(5px,env(safe-area-inset-bottom))}
+  .touch-controls button{min-height:46px}
+  .game-shell.is-playing .level-pill{display:none}
+}

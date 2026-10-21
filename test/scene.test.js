@@ -9,8 +9,9 @@ test('renderer keeps finite coordinates and balanced state in every environment 
     let balance=0,drawCalls=0;
     const valid=(...args)=>{for(const v of args.flat())if(typeof v==='number')assert.ok(Number.isFinite(v));drawCalls++;};
     const gradient={addColorStop:valid};
-    const ctx=new Proxy({save(){balance++;},restore(){balance--;assert.ok(balance>=0);},createLinearGradient(...args){valid(...args);return gradient;},createRadialGradient(...args){valid(...args);return gradient;}},{get:(target,key)=>key in target?target[key]:valid});
+    const labels=[];
+    const ctx=new Proxy({save(){balance++;},restore(){balance--;assert.ok(balance>=0);},fillText(label,...args){labels.push(label);valid(...args);},createLinearGradient(...args){valid(...args);return gradient;},createRadialGradient(...args){valid(...args);return gradient;}},{get:(target,key)=>key in target?target[key]:valid});
     const canvas={getContext:()=>ctx,getBoundingClientRect:()=>({width,height})};const game=new Game();game.configure({levelIndex});game.reset();game.mode='menu';const scene=new Scene(canvas,game);scene.frame(1/60);
-    game.start();game.shield=1;game.magnet=8;game.braking=true;game.honkWave=.5;game.objects=['candy','pumpkin','ghost','broccoli','shield','magnet'].map((type,i)=>({type,x:0,z:i<3?.5+i*.1:PLAYER_Z+.02*(i-2),seed:0}));scene.frame(1/60);scene.event({type:'hit'});scene.event({type:'candy'});game.boosting=true;scene.frame(1/60);game.pause();scene.frame(1/60);assert.equal(balance,0);assert.ok(drawCalls>1000);
+    game.start();game.shield=1;game.magnet=8;game.braking=true;game.honkWave=.5;game.objects=['candy','pumpkin','ghost','broccoli','shield','magnet'].map((type,i)=>({type,x:0,z:i<3?.5+i*.1:PLAYER_Z+.02*(i-2),seed:0}));scene.frame(1/60);scene.event({type:'hit'});scene.event({type:'candy'});game.boosting=true;scene.frame(1/60);game.pause();scene.frame(1/60);assert.equal(balance,0);assert.ok(drawCalls>1000);assert.ok(labels.includes('Aylina'));
   }
 });
