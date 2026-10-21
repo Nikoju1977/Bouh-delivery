@@ -1,8 +1,8 @@
-import {Game,LEVELS,MODES,clamp} from './engine.js?v=12';
-import {readProgress,recordResult} from './levels.js?v=12';
+import {Game,LEVELS,MODES,clamp} from './engine.js?v=13';
+import {readProgress,recordResult} from './levels.js?v=13';
 import {dragTarget} from './geometry.js';
-import {Scene} from './scene.js';
-import {AudioEngine} from './audio.js';
+import {Scene} from './scene.js?v=13';
+import {AudioEngine} from './audio.js?v=13';
 
 const $=id=>document.getElementById(id);
 const storage={get(key,fallback){try{return localStorage.getItem(key)??fallback;}catch{return fallback;}},set(key,value){try{localStorage.setItem(key,String(value));}catch{}}};
