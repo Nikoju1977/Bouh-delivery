@@ -82,7 +82,28 @@ test('boss with remaining HP prevents victory at timeout, and boss projectile co
 
 test('saved five-level campaign progress remains valid with expanded levels',()=>{
   const old=readProgress(JSON.stringify({unlocked:5,results:{'arcade:5':{best:2500,stars:3}}}));
-  assert.equal(old.unlocked,5);assert.deepEqual(old.results['arcade:5'],{best:2500,stars:3});
+  assert.equal(old.unlocked,6);assert.deepEqual(old.results['arcade:5'],{best:2500,stars:3});
   recordResult(old,{levelIndex:4,difficulty:'arcade',score:2600,won:true,lives:3,maxLives:3});
   assert.equal(old.unlocked,6);
+});
+
+
+test('migrates completed level five in both difficulty modes into level six',()=>{
+  for(const difficulty of ['arcade','balade']){
+    const key=`${difficulty}:5`;
+    const saved=JSON.stringify({unlocked:5,results:{[key]:{best:9300,stars:2}}});
+    const progress=readProgress(saved);
+    assert.equal(progress.unlocked,6,`${difficulty}: level 6 should unlock`);
+    assert.deepEqual(progress.results[key],{best:9300,stars:2});
+    assert.deepEqual(readProgress(JSON.stringify(progress)),progress);
+  }
+});
+
+test('migration never unlocks level six from an unfinished level five',()=>{
+  const noWin=readProgress(JSON.stringify({unlocked:5,results:{'arcade:5':{best:9000,stars:0}}}));
+  assert.equal(noWin.unlocked,5);
+  const noResult=readProgress(JSON.stringify({unlocked:5,results:{}}));
+  assert.equal(noResult.unlocked,5);
+  const oldWins=readProgress(JSON.stringify({unlocked:3,results:{'balade:5':{best:500,stars:1}}}));
+  assert.equal(oldWins.unlocked,6);
 });

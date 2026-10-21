@@ -6,7 +6,10 @@ import {AudioEngine} from './audio.js';
 
 const $=id=>document.getElementById(id);
 const storage={get(key,fallback){try{return localStorage.getItem(key)??fallback;}catch{return fallback;}},set(key,value){try{localStorage.setItem(key,String(value));}catch{}}};
-const progress=readProgress(storage.get('bouh-campaign-v2','null'));
+// Restore a previously completed final stage when upgrading from the five-level campaign.
+const savedCampaign=storage.get('bouh-campaign-v2','null');
+const progress=readProgress(savedCampaign);
+if(savedCampaign!=='null'&&savedCampaign!==JSON.stringify(progress))storage.set('bouh-campaign-v2',JSON.stringify(progress));
 const audio=new AudioEngine(storage.get('bouh-sound','on')!=='off');
 const keys=new Set(),touchPointers=new Map();
 let scene,countdownRemaining=0,lastCountdown=-1,toastRemaining=0,radioRemaining=0,lastRadio=-1,helpPaused=false,drag=null;

@@ -169,7 +169,7 @@ const LEVELS = [
 ];
 const MODES={balade:{label:'Balade',lives:5,pace:0.84},arcade:{label:'Arcade',lives:3,pace:1}};
 function freshProgress(){return {unlocked:1,results:{}};}
-function readProgress(value){try{const data=JSON.parse(value);if(!data||typeof data!=='object')return freshProgress();const progress=freshProgress();progress.unlocked=Math.max(1,Math.min(LEVELS.length,Math.floor(Number(data.unlocked)||1)));for(const mode of Object.keys(MODES))for(const level of LEVELS){const key=`${mode}:${level.id}`,r=data.results?.[key];if(r&&Number.isFinite(r.best)&&Number.isFinite(r.stars))progress.results[key]={best:Math.max(0,Math.floor(r.best)),stars:Math.max(0,Math.min(3,Math.floor(r.stars)))};}return progress;}catch{return freshProgress();}}
+function readProgress(value){try{const data=JSON.parse(value);if(!data||typeof data!=='object')return freshProgress();const progress=freshProgress();progress.unlocked=Math.max(1,Math.min(LEVELS.length,Math.floor(Number(data.unlocked)||1)));for(const mode of Object.keys(MODES))for(const level of LEVELS){const key=`${mode}:${level.id}`,r=data.results?.[key];if(r&&Number.isFinite(r.best)&&Number.isFinite(r.stars)){progress.results[key]={best:Math.max(0,Math.floor(r.best)),stars:Math.max(0,Math.min(3,Math.floor(r.stars)))};if(progress.results[key].stars>0)progress.unlocked=Math.max(progress.unlocked,Math.min(LEVELS.length,level.id+1));}}return progress;}catch{return freshProgress();}}
 function recordResult(progress,{levelIndex,difficulty,score,won,lives,maxLives}){const key=`${difficulty}:${levelIndex+1}`,previous=progress.results[key]||{best:0,stars:0};const stars=won?(lives===maxLives?3:lives>=Math.ceil(maxLives/2)?2:1):0;progress.results[key]={best:Math.max(previous.best,Math.floor(score)),stars:Math.max(previous.stars,stars)};if(won)progress.unlocked=Math.max(progress.unlocked,Math.min(LEVELS.length,levelIndex+2));return {...progress.results[key],earnedStars:stars,newRecord:score>previous.best};}
 
 
@@ -631,7 +631,10 @@ class AudioEngine {
 
 const $=id=>document.getElementById(id);
 const storage={get(key,fallback){try{return localStorage.getItem(key)??fallback;}catch{return fallback;}},set(key,value){try{localStorage.setItem(key,String(value));}catch{}}};
-const progress=readProgress(storage.get('bouh-campaign-v2','null'));
+// Restore a previously completed final stage when upgrading from the five-level campaign.
+const savedCampaign=storage.get('bouh-campaign-v2','null');
+const progress=readProgress(savedCampaign);
+if(savedCampaign!=='null'&&savedCampaign!==JSON.stringify(progress))storage.set('bouh-campaign-v2',JSON.stringify(progress));
 const audio=new AudioEngine(storage.get('bouh-sound','on')!=='off');
 const keys=new Set(),touchPointers=new Map();
 let scene,countdownRemaining=0,lastCountdown=-1,toastRemaining=0,radioRemaining=0,lastRadio=-1,helpPaused=false,drag=null;
