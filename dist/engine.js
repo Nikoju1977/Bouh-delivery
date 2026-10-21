@@ -1,4 +1,4 @@
-import {LEVELS,MODES} from './levels.js';
+import {LEVELS,MODES} from './levels.js?v=12';
 export {LEVELS,MODES};
 export const GOAL=LEVELS[0].goal,DURATION=LEVELS[0].duration,PLAYER_Z=0.88,LANES=[-0.66,0,0.66];
 export const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));

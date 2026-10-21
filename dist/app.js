@@ -1,5 +1,5 @@
-import {Game,LEVELS,MODES,clamp} from './engine.js';
-import {readProgress,recordResult} from './levels.js';
+import {Game,LEVELS,MODES,clamp} from './engine.js?v=12';
+import {readProgress,recordResult} from './levels.js?v=12';
 import {dragTarget} from './geometry.js';
 import {Scene} from './scene.js';
 import {AudioEngine} from './audio.js';

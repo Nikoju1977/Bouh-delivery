@@ -26,3 +26,15 @@ test('standalone root index contains the whole playable game for static hosts',(
   assert.ok(code);
   new Script(code,{filename:'index.html'});
 });
+
+
+test('GitHub Pages loads the same fresh campaign version through its ES modules',()=>{
+  const page=readFileSync(new URL('../dist/index.html',import.meta.url),'utf8');
+  const app=readFileSync(new URL('../dist/app.js',import.meta.url),'utf8');
+  const engine=readFileSync(new URL('../dist/engine.js',import.meta.url),'utf8');
+  const version=page.match(/app\.js\?v=(\d+)/)?.[1];
+  assert.ok(version,'The public entry point must have a versioned app URL');
+  assert.ok(app.includes(`from './engine.js?v=${version}'`));
+  assert.ok(app.includes(`from './levels.js?v=${version}'`));
+  assert.ok(engine.includes(`from './levels.js?v=${version}'`));
+});
