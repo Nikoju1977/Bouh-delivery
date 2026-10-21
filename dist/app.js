@@ -31,14 +31,15 @@ function say(name,text,duration=4.5){$('radio-name').textContent=name;$('radio-t
 function updateStage(){const level=game.level,pill=$('level-pill');pill.firstElementChild.textContent=String(level.id).padStart(2,'0');pill.lastElementChild.firstChild.textContent=level.name.toUpperCase();pill.querySelector('small').textContent=level.subtitle;}
 function renderLevels(){
   $('level-list').replaceChildren();
+  $('boss-level-list').replaceChildren();
   for(const [index,level] of LEVELS.entries()){
     const locked=level.id>progress.unlocked,record=progress.results[`${game.difficulty}:${level.id}`]||{stars:0,best:0};
-    const button=document.createElement('button');button.type='button';button.className='level-card';button.classList.toggle('selected',index===game.levelIndex);button.classList.toggle('locked',locked);button.disabled=locked||isDriving();button.setAttribute('aria-pressed',String(index===game.levelIndex));
+    const button=document.createElement('button');button.type='button';button.className='level-card';button.classList.toggle('selected',index===game.levelIndex);button.classList.toggle('locked',locked);button.classList.toggle('boss-mission',!!level.boss);button.disabled=locked||isDriving();button.setAttribute('aria-pressed',String(index===game.levelIndex));
     const number=document.createElement('span');number.className='level-card-number';number.textContent=`${String(level.id).padStart(2,'0')} · ${locked?'VERROUILLÉ':level.icon}`;
     const title=document.createElement('strong');title.textContent=level.name;
-    const target=document.createElement('small');target.textContent=`${level.duration} s · ${level.goal} bonbons${level.boss?' · BOSS':''}`;
+    const target=document.createElement('small');target.textContent=`${level.duration} s · ${level.goal} bonbons${level.boss?' · BOSS : '+level.boss.name:''}`;
     const stars=document.createElement('span');stars.className='level-stars';stars.textContent='★'.repeat(record.stars)+'☆'.repeat(3-record.stars);stars.setAttribute('aria-label',`${record.stars} étoiles sur 3`);
-    button.append(number,title,target,stars);button.addEventListener('click',()=>home(index));$('level-list').append(button);
+    button.append(number,title,target,stars);button.addEventListener('click',()=>home(index));$(index<5?'level-list':'boss-level-list').append(button);
   }
   $('progress-label').textContent=`${progress.unlocked} / ${LEVELS.length} DÉBLOQUÉ${progress.unlocked>1?'S':''}`;
   $('level-brief').textContent=game.level.brief;$('difficulty').disabled=isDriving();
