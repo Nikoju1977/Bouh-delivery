@@ -58,3 +58,12 @@ Les tests couvrent la conduite, les collisions, les bonus, les fins de niveau, l
 - `dist/app.js` : interface, entrées et sauvegarde locale.
 - `dist/audio.js` : synthèse sonore.
 - `test/` : tests Node.js, sans dépendances.
+
+
+## Jouer sur Vercel avec un seul fichier
+
+Le fichier [`index.html`](./index.html) à la racine est **autonome** : styles CSS, logique JavaScript, graphismes Canvas, favicon SVG et sons Web Audio sont intégrés, sans dépendance ni chargement externe. Il inclut la plaque **Aylina** et le petit koala d'Halloween sur le corbillard.
+
+Pour mettre le jeu sur Vercel, importez ce dépôt GitHub comme projet avec le préréglage **Other** et le répertoire racine `.`, sans commande de build ni dossier de sortie spécial. Vous pouvez aussi déposer ce seul `index.html` dans un nouveau projet statique. Les données de progression restent sauvegardées dans le navigateur du joueur.
+
+Les sources modulaires restent dans `dist/` pour GitHub Pages et pour les tests. Quand vous les modifiez, régénérez également le fichier autonome si vous voulez conserver la parité.
